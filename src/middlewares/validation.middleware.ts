@@ -1,24 +1,49 @@
 import type { Request, Response, NextFunction } from 'express';
-import { z, ZodError } from 'zod';
+import { ZodObject, ZodError } from 'zod';
 
-// Middleware untuk validasi request body
-export const validateBody = (schema: z.ZodSchema) => {
+/**
+ * Middleware untuk memvalidasi Request Body (req.body)
+ * Digunakan pada method POST, PUT, atau PATCH
+ */
+export const validateBody = (schema: ZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Parse & validate body
+      // parseAsync akan mengecek dan membersihkan data sesuai skema Zod
       req.body = await schema.parseAsync(req.body);
-      next();
+      next(); // Lanjut ke controller jika sukses
     } catch (error) {
       if (error instanceof ZodError) {
-        // Format error messages
-        const errorMessages = error.issues.map((err) => ({
-          field: err.path.join('.'),
-          message: err.message,
-        }));
-
         return res.status(400).json({
-          error: 'Validation failed',
-          details: errorMessages,
+          message: 'Validasi data (body) gagal',
+          errors: error.issues.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        });
+      }
+      next(error); // Lempar error lain ke global error handler
+    }
+  };
+};
+
+/**
+ * Middleware untuk memvalidasi Request Params (req.params)
+ * Digunakan untuk mengecek variabel di URL (contoh: /users/:id)
+ */
+export const validateParams = (schema: ZodObject) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // parseAsync mengecek parameter URL
+      req.params = await schema.parseAsync(req.params) as any;
+      next(); // Lanjut ke controller jika sukses
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({
+          message: 'Validasi parameter URL gagal',
+          errors: error.issues.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
         });
       }
       next(error);
@@ -26,22 +51,23 @@ export const validateBody = (schema: z.ZodSchema) => {
   };
 };
 
-// Middleware untuk validasi request params
-export const validateParams = (schema: z.ZodSchema) => {
+/**
+ * (Bonus) Middleware untuk memvalidasi Request Query (req.query)
+ * Berguna jika nanti kamu punya endpoint seperti /users?search=john&limit=10
+ */
+export const validateQuery = (schema: ZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.params = (await schema.parseAsync(req.params)) as any;
+      req.query = await schema.parseAsync(req.query) as any;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.issues.map((err) => ({
-          field: err.path.join('.'),
-          message: err.message,
-        }));
-
         return res.status(400).json({
-          error: 'Invalid parameters',
-          details: errorMessages,
+          message: 'Validasi query parameter gagal',
+          errors: error.issues.map((err) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
         });
       }
       next(error);

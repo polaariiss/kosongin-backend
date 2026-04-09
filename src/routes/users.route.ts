@@ -12,7 +12,6 @@ import {
   createUser,
   getAllUsers,
   getUserById,
-  updateUser,
   deleteUser,
 } from '../controllers/users.controller';
 
@@ -25,7 +24,6 @@ router.put(
   '/:id',
   validateParams(userIdSchema),
   validateBody(updateUserSchema),
-  updateUser,
 );
 router.delete('/:id', validateParams(userIdSchema), deleteUser);
 

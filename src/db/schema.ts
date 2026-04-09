@@ -62,11 +62,8 @@ export const consumptionLogs = pgTable('consumption_logs', {
     .references(() => users.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   description: text('description'),
-
   imageUrl: text('image_url'),
-
   amount: decimal('amount', { precision: 10, scale: 2 }),
-
   consumedAt: timestamp('consumed_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
@@ -106,7 +103,7 @@ export const emailLogs = pgTable('email_logs', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   emailType: varchar('email_type', { length: 50 }).notNull(), // Contoh: "reminder", "notification"
-  status: varchar('status', { length: 20 }).notNull(), // Contoh: "sent", "failed"
+  status: varchar('status', { length: 20 }).notNull(), 
   sentAt: timestamp('sent_at').defaultNow().notNull(),
 });
 

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
+    "ignoreDeprecations": "5.0",
     // Environment setup & latest features
     "lib": ["ESNext"],
     "target": "es2020",
@@ -9,7 +9,6 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "esModuleInterop": true,
-    
 
     // Bundler mode
     "moduleResolution": "node",
@@ -19,12 +18,11 @@
     "resolveJsonModule": true, // Include JSON imports
     "forceConsistentCasingInFileNames": true,
 
-
     "allowSyntheticDefaultImports": true,
     "outDir": "./dist", // Output directory for compiled files
     "isolatedModules": true, // Required for using ESM modules
     "baseUrl": ".",
-    
+
     "paths": {
       "*": ["node_modules/*"]
     },

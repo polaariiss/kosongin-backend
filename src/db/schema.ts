@@ -30,6 +30,18 @@ export enum DaysDurationWait {
   FOURTEEN_DAYS = 14,
   THIRTY_DAYS = 30,
 }
+export enum consumptionCategory {
+  FOOD_BAVERAGE = 'makanan & minuman',
+  FASHION = 'fashion',
+  ELECTRONIC = 'elektronik',
+  SELF_CARE = 'perawatan diri',
+  ENTERTAINMENT = 'hiburan',
+}
+export enum impulseStatus {
+  WAITING = 'waiting',
+  BOUGHT = 'bought',
+  CANCELLED = 'cancelled',
+}
 
 // ==========================================
 // 1. TABEL USERS
@@ -60,10 +72,12 @@ export const consumptionLogs = pgTable('consumption_logs', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  title: text('title').notNull(),
-  description: text('description'),
+  itemName: text('item_name').notNull(),
+  itemCategory: varchar('item_category').notNull(), // enum consumptionCategory
+  reason: text('reason'),
   imageUrl: text('image_url'),
   amount: decimal('amount', { precision: 10, scale: 2 }),
+  notes: text('notes'),
   consumedAt: timestamp('consumed_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
@@ -73,7 +87,7 @@ export const consumptionLogs = pgTable('consumption_logs', {
 });
 
 // ==========================================
-// 3. TABEL WISHLIST
+// 3. TABEL WISHLIST / IMPULSE SHIELD
 // ==========================================
 export const wishlists = pgTable('wishlists', {
   id: serial('id').primaryKey(),
@@ -81,12 +95,10 @@ export const wishlists = pgTable('wishlists', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   itemName: text('item_name').notNull(),
-
-  targetPrice: decimal('target_price', { precision: 10, scale: 2 }),
-  notes: text('notes'),
-
+  itemCategory: varchar('item_category').notNull(), // enum consumptionCategory - wishlistcategory
+  estimatetPrice: decimal('price_estimate', { precision: 10, scale: 2 }),
   isFulfilled: boolean('is_fulfilled').default(false).notNull(),
-
+  whislistStatus: varchar('wishlist_status').default(impulseStatus['WAITING']).notNull(), // enum impulseStatus (as history final status)
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at')
     .defaultNow()
@@ -103,7 +115,7 @@ export const emailLogs = pgTable('email_logs', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   emailType: varchar('email_type', { length: 50 }).notNull(), // Contoh: "reminder", "notification"
-  status: varchar('status', { length: 20 }).notNull(), 
+  status: varchar('status', { length: 20 }).notNull(),
   sentAt: timestamp('sent_at').defaultNow().notNull(),
 });
 

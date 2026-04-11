@@ -1,0 +1,343 @@
+openapi: 3.0.3
+info:
+  title: Kosongin API
+  version: 1.0.0
+  description: API untuk aplikasi kosongin - project capstone
+
+tags:
+  - name: Auth
+  - name: Consumption
+  - name: Impulse Shield
+  - name: Challenge
+  - name: Admin
+  - name: Profile
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Daftar akun baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Register berhasil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login untuk masuk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+  /auth/forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Request password baru
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequest"
+      responses:
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Request reset password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+
+  /profile:
+    get:
+      responses:
+        # dapet nickname, fullname, email
+    put:
+      # kalau ada fitur buat ganti isi profile
+
+  /consumption:
+    get:
+      responses:
+    post:
+  /consumption/{id}:
+    put:
+    delete:
+  /consumption/insights:
+    get:
+      # dapet total konsumsi minggu ini, kategori terbanyak, data konsumsi harian yang tercatat
+
+  /impulse-shield:
+    get:
+      # dapet itemName, category, estimatedPrice, createdAt/addedAt
+    post:
+      tags:
+        - Impulse Shield
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddItemImpulseShieldRequest"
+      responses:
+  /impulse-shield/stats:
+    get:
+      # pathnya masih bisa berubah jadi /insight
+      # dapet total item yang dibatalkan, estimasi uang yang dihemat, total item tercatat
+  /impulse-shield/{id}/decide:
+    patch:
+      # dipake untuk tombol batalkan -> update "cancelled"
+
+  /challenge:
+    get:
+      # dapet semua challenge
+  /challenge/{id}:
+    get:
+    # dipake untuk nampilin halaman detail challenge
+  /challenge/{id}/join:
+    post:
+      tags:
+        - Consumption
+      summary: Join challenge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schema/JoinChallengeRequest"
+      responses:
+  /challenge/me:
+    get:
+      # dapet challengeId, judul challenge, progress, joinedAt
+
+  /admin/auth/login:
+    post:
+      tags:
+        - Admin
+        - Auth
+      summary: Login untuk admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schema/AdminLoginRequest"
+      responses:
+  /admin/stats:
+    get:
+      # dapet total dari pengguna terdaftar, item konsumsi tercatat, item impulse shield dibatalkan, challenge aktif
+  /admin/users:
+    get:
+      # pencarian berdasarkan nama/email
+      # dapet +email
+      # filter status akun (aktif/tidak aktif)
+  /admin/challenges:
+    get:
+      # dapet semua challenge
+    post:
+      tags:
+        - Admin
+        - Challenge
+      summary: Admin membuat challenge komunitas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schema/AdminAddChallengeRequest"
+      responses:
+  /admin/challenges/{id}:
+    put:
+      tags:
+        - Admin
+        - Challenge
+      summary: Admin edit dan menonaktifkan challenge
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schema/AdminUpdateChallenge"
+      responses:
+  /admin/email-logs:
+    get:
+    # dapet log seluruh pengguna harian, jumlah item tercatat per hari, challenge dengan paling banyak pesertanya (3 mungkin cukup)
+
+#################################################################################
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        nickname:
+          type: string
+        fullname:
+          type: string
+          minLength: 3
+          pattern: "^[a-zA-Z0-9_]+$"
+        email:
+          type: string
+      required: [nickname, fullname, email]
+
+    Challenge:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        fullDescription:
+          type: string
+          minLength: 1
+        rules:
+          type: string
+          minLength: 1
+          description: aturan dari challenge
+        howTo:
+          type: string
+          minLength: 1
+          description: user harus ngapain di challenge itu
+        category:
+          type: string
+          minLength: 1
+        startDate: # pakai schema CustomTimeStamp
+        endDate: # pakai schema CustomTimeStamp
+
+    CustomTimeStamp:
+      type: string
+      pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+      example: "2024-05-20 14:30:00"
+      description: "Timestamp in YYYY-MM-DD HH:MM:SS format"
+
+    RegisterRequest:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          required: [nickname, fullname, email, password, password_confirm]
+          properties:
+            password:
+              type: string
+              minLength: 8
+            password_confirm:
+              type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    LoginRequest:
+      type: object
+      properties:
+        nickname:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+      required: [password]
+      oneOf:
+        - required: [nickname, email]
+      additionalProperties: false
+
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+
+    AddItemImpulseShieldRequest:
+      type: object
+      properties:
+        itemName:
+          type: string
+        category:
+          type: string
+        duration:
+          type: integer
+        reason:
+          type: string
+      required: [itemName, category, duration]
+
+    JoinChallengeRequest:
+      type: object
+      properties:
+        challengeId:
+          type:
+          # belum tahu pakai uuid atau serial (string/integer)
+        userId:
+          type: string
+      required: [challengeId, userId]
+
+    AdminLoginRequest:
+      type: object
+      properties:
+        id:
+          type:
+          # belum tahu pakai uuid atau serial, lagian tabelnya belum ada
+        username:
+          type: string
+      required: [id, username]
+
+    AdminAddChallengeRequest:
+      allOf:
+        - $ref: "#/components/schemas/Challenge"
+        - type: object
+      required:
+        [
+          title,
+          description,
+          fullDescription,
+          rules,
+          howTo,
+          category,
+          startDate,
+          endDate,
+        ]
+
+    AdminUpdateChallenge:
+      allOf:
+        - $ref: "#/components/schemas/Challenge"
+        - type: object
+      properties:
+        id:
+          type:
+          # ga tau mau pakai uuid atau serial
+      required: [id]
+
+  # responses:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

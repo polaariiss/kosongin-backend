@@ -59,6 +59,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: text('password').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  isActive: boolean('status').default(true),
   updatedAt: timestamp('updated_at')
     .defaultNow()
     .$onUpdate(() => new Date())
@@ -137,7 +138,7 @@ export const challenges = pgTable('challenges', {
   rules: text('rules'),
   howTo: text('how_to'),
   categoryTag: varchar('category_tag', { length: 100 }),
-  imageUrl: varchar('image_url', { length: 500 }),
+  imageUrl: text('image_url'),
   durationDays: integer('duration_days'),
   startDate: timestamp('start_date'),
   endDate: timestamp('end_date'),

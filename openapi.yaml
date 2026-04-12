@@ -11,6 +11,7 @@ tags:
   - name: Challenge
   - name: Admin
   - name: Profile
+  - name: Upload
 
 paths:
   # ============================================================

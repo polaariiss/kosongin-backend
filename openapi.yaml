@@ -1271,6 +1271,9 @@ components:
         id:
           type: string
           format: uuid
+        userId:
+          type: string
+          format: uuid
         itemName:
           type: string
           example: 'Nasi Goreng'
@@ -1282,10 +1285,11 @@ components:
             - elektronik
             - perawatan diri
             - hiburan
+            - lainnya
           example: 'makanan & minuman'
-        reason:
+        itemCategoryCustom:
           type: string
-          example: 'Lapar setelah kerja'
+          example: 'Jasa'
         amount:
           type: number
           format: decimal
@@ -1293,15 +1297,16 @@ components:
         notes:
           type: string
           example: 'Beli di warung dekat kantor'
-        consumedAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
         createdAt:
           $ref: '#/components/schemas/CustomTimeStamp'
 
     AddConsumptionRequest:
       type: object
-      required: [itemName, itemCategory]
+      required: [itemName, itemCategory, amount]
       properties:
+        userId:
+          type: string
+          format: uuid
         itemName:
           type: string
           example: 'Nasi Goreng'
@@ -1313,10 +1318,11 @@ components:
             - elektronik
             - perawatan diri
             - hiburan
+            - lainnya
           example: 'makanan & minuman'
-        reason:
+        itemCategoryCustom:
           type: string
-          example: 'Lapar setelah kerja'
+          description: 'kalau itemCategorynya lainnya, field ini harus diisi'
         amount:
           type: number
           format: decimal
@@ -1324,8 +1330,6 @@ components:
         notes:
           type: string
           example: 'Beli di warung dekat kantor'
-        consumedAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
         imageUrl:
           type: string
           format: uri

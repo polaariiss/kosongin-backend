@@ -5,10 +5,7 @@ import { consumptionLogs } from '../db/schema';
 export const createConsumptionLog = async (req: Request, res: Response) => {
   try {
     // 1. Ambil data teks (Sudah bersih karena melewati Zod)
-    const { userId, title, description, amount } = req.body;
-
-    // 2. Ambil path gambar jika user mengunggahnya (ingat, imageUrl itu nullable di skema kita!)
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const { userId, title, description, amount, imageUrl } = req.body;
 
     // 3. Simpan ke database Drizzle
     const newLog = await db.insert(consumptionLogs).values({

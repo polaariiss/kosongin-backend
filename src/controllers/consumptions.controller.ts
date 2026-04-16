@@ -5,7 +5,7 @@ import {
   findLogById, 
   updateLogById, 
   deleteLogById 
-} from '../domains/consumptions/consumptions.query';
+} from '../query/consumptions.query';
 
 export const createConsumptionLog = async (req: Request, res: Response) => {
   try {

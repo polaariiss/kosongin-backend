@@ -1,5 +1,5 @@
-import { db } from '../../config/db';
-import { consumptionLogs, ConsumptionCategory } from '../../db/schema';
+import { db } from '../config/db';
+import { consumptionLogs, ConsumptionCategory } from '../db/schema';
 import { eq, and, desc, asc } from 'drizzle-orm';
 
 export interface CreateConsumptionData {

@@ -9,7 +9,10 @@
     "dev": "node --import=tsx --watch --env-file=.env src/index.ts",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
   },
   "repository": {
     "type": "git",
@@ -28,14 +31,16 @@
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1",
+    "nodemailer": "^8.0.5",
     "pg": "^8.20.0",
+    "resend": "^6.12.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",

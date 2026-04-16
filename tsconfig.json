@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     // Environment setup & latest features
     "lib": ["ESNext"],
     "target": "es2020",
@@ -19,6 +19,7 @@
     "forceConsistentCasingInFileNames": true,
 
     "allowSyntheticDefaultImports": true,
+    "rootDir": ".", // Mengubah rootDir ke . agar menyertakan config di root
     "outDir": "./dist", // Output directory for compiled files
     "isolatedModules": true, // Required for using ESM modules
     "baseUrl": ".",
@@ -38,5 +39,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["src/**/*", "drizzle.config.ts"],
+  "exclude": ["node_modules", "dist"]
 }

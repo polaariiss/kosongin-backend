@@ -38,13 +38,20 @@ export const insertLog = async (data: CreateConsumptionData) => {
 
 export const findLogs = async (options: GetLogsOptions) => {
   const { userId, category, sortBy = 'consumedAt', order = 'desc' } = options;
+<<<<<<< HEAD
 
   let conditions = eq(consumptionLogs.userId, userId);
 
+=======
+  
+  let conditions = eq(consumptionLogs.userId, userId);
+  
+>>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
   if (category) {
     conditions = and(conditions, eq(consumptionLogs.itemCategory, category))!;
   }
 
+<<<<<<< HEAD
   const orderBy =
     order === 'desc'
       ? desc(consumptionLogs[sortBy])
@@ -52,20 +59,30 @@ export const findLogs = async (options: GetLogsOptions) => {
 
   return await db
     .select()
+=======
+  const orderBy = order === 'desc' ? desc(consumptionLogs[sortBy]) : asc(consumptionLogs[sortBy]);
+
+  return await db.select()
+>>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
     .from(consumptionLogs)
     .where(conditions)
     .orderBy(orderBy);
 };
 
 export const findLogById = async (id: string) => {
+<<<<<<< HEAD
   const result = await db
     .select()
+=======
+  const result = await db.select()
+>>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
     .from(consumptionLogs)
     .where(eq(consumptionLogs.id, id))
     .limit(1);
   return result[0];
 };
 
+<<<<<<< HEAD
 export const updateLogById = async (
   id: string,
   data: Partial<CreateConsumptionData>,
@@ -77,21 +94,38 @@ export const updateLogById = async (
   if (data.itemCategory) updateData.itemCategory = data.itemCategory;
   if (data.itemCategoryCustom)
     updateData.itemCategoryCustom = data.itemCategoryCustom;
+=======
+export const updateLogById = async (id: string, data: Partial<CreateConsumptionData>) => {
+  const updateData: any = {};
+  
+  if (data.userId) updateData.userId = data.userId;
+  if (data.itemName) updateData.itemName = data.itemName;
+  if (data.itemCategory) updateData.itemCategory = data.itemCategory;
+  if (data.itemCategoryCustom) updateData.itemCategoryCustom = data.itemCategoryCustom;
+>>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
   if (data.amount !== undefined) updateData.amount = data.amount?.toString();
   if (data.notes !== undefined) updateData.notes = data.notes;
   if (data.consumedAt) updateData.consumedAt = new Date(data.consumedAt);
 
+<<<<<<< HEAD
   return await db
     .update(consumptionLogs)
+=======
+  return await db.update(consumptionLogs)
+>>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
     .set(updateData)
     .where(eq(consumptionLogs.id, id))
     .returning();
 };
 
 export const deleteLogById = async (id: string) => {
+<<<<<<< HEAD
   return await db
     .delete(consumptionLogs)
+=======
+  return await db.delete(consumptionLogs)
+>>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
     .where(eq(consumptionLogs.id, id))
     .returning();
 };

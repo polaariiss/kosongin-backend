@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import usersRoute from './users.route';
-import consumptionRoute from './consumption-logs.route'
+import consumptionRoute from './consumptions.route'
 import uploadRoute from './upload.route'
 
 const router = Router();

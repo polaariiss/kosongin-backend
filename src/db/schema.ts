@@ -212,6 +212,30 @@ export const userActivityLogs = pgTable('user_activity_logs', {
 });
 
 // ==========================================
+// 9. TABEL TOKEN_BLACKLIST
+// ==========================================
+export const passwordResetToken = pgTable('password_reset_token', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  token: varchar('token', { length: 255 }),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// ==========================================
+// 10. TABEL PASSWORD_RESET_TOKEN
+// ==========================================
+export const tokenBlacklists = pgTable('token_blacklists', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  token: text('token').notNull().unique(),
+  expiredAt: timestamp('expired_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// ==========================================
 // DEFINISI RELASI (Untuk kemudahan Query)
 // ==========================================
 

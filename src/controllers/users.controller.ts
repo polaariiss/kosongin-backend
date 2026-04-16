@@ -1,9 +1,7 @@
 import type { Request, Response } from 'express';
 import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { users } from '../db/schema';
-
-const db = drizzle(process.env.DATABASE_URL!);
+import { db } from '../config/db'
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -20,11 +18,13 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const getAllUsers = await db.select().from(users);
+    // Karena kita mendaftarkan `{ schema }` di config, kita bisa pakai format query API yang modern seperti ini:
+    const getAllUsers = await db.query.users.findMany();
     res.json(getAllUsers);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch users' });
   }
+
 };
 
 export const getUserById = async (req: Request, res: Response) => {

@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import usersRoute from './users.route';
-import consumptionRoute from './comsumptions.route'
+import consumptionRoute from './consumptions.route'
+import uploadRoute from './upload.route'
 
 const router = Router();
 
 // Semua route didaftarkan disini
 router.use('/users', usersRoute);
-router.use('/consumptions', consumptionRoute);
+router.use('/consumption-logs', consumptionRoute);
+router.use('/upload', uploadRoute);
 
 export default router;

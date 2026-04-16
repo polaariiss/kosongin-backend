@@ -9,7 +9,8 @@ export const validateBody = (schema: ZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // parseAsync akan mengecek dan membersihkan data sesuai skema Zod
-      req.body = await schema.parseAsync(req.body);
+      const validatedBody = await schema.parseAsync(req.body);
+      Object.assign(req.body, validatedBody);
       next(); // Lanjut ke controller jika sukses
     } catch (error) {
       if (error instanceof ZodError) {
@@ -34,7 +35,8 @@ export const validateParams = (schema: ZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       // parseAsync mengecek parameter URL
-      req.params = await schema.parseAsync(req.params) as any;
+      const validatedParams = await schema.parseAsync(req.params);
+      Object.assign(req.params, validatedParams);
       next(); // Lanjut ke controller jika sukses
     } catch (error) {
       if (error instanceof ZodError) {
@@ -58,7 +60,8 @@ export const validateParams = (schema: ZodObject) => {
 export const validateQuery = (schema: ZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.query = await schema.parseAsync(req.query) as any;
+      const validatedQuery = await schema.parseAsync(req.query);
+      Object.assign(req.query, validatedQuery);
       next();
     } catch (error) {
       if (error instanceof ZodError) {

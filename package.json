@@ -25,6 +25,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.9.0",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/multer": "^2.1.0",
+    "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
@@ -43,7 +45,9 @@
     "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
+    "nodemon": "^3.1.14",
     "prettier": "^3.8.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }

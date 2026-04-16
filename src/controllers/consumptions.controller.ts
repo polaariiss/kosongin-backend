@@ -1,33 +1,30 @@
 import type { Request, Response } from 'express';
 import { db } from '../config/db'; // Sesuaikan lokasi koneksi DB kamu
 import { consumptionLogs } from '../db/schema';
-import { createConsumptionLogSchema } from '../schemas/consumptions.schema';
 
 export const createConsumptionLog = async (req: Request, res: Response) => {
   try {
     // 1. Ambil data teks (Sudah bersih karena melewati Zod)
-    const parsed = createConsumptionLogSchema.parse(req.body);
+    const { userId, title, description, amount } = req.body;
+
+    // 2. Ambil path gambar jika user mengunggahnya (ingat, imageUrl itu nullable di skema kita!)
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     // 3. Simpan ke database Drizzle
-    const newLog = await db
-      .insert(consumptionLogs)
-      .values({
-        userId: parsed.userId,
-        itemName: parsed.itemName,
-        itemCategory: parsed.itemCategory,
-        itemCategoryCustom: parsed.itemCategoryCustom ?? null,
-        amount: parsed.amount?.toString(),
-        notes: parsed.notes,
-        imageUrl: parsed.imageUrl,
-      })
-      .returning();
+    const newLog = await db.insert(consumptionLogs).values({
+      userId,
+      itemName: title,
+      itemCategory: description,
+      amount,
+      imageUrl,
+    }).returning();
 
     res.status(201).json({
       message: 'Log konsumsi berhasil dicatat',
-      data: newLog[0],
+      data: newLog[0]
     });
   } catch (error) {
-    console.error('Error create log:', error);
+    console.error("Error create log:", error);
     res.status(500).json({ error: 'Gagal membuat log konsumsi' });
   }
 };

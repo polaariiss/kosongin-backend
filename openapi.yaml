@@ -130,49 +130,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   # ============================================================
-  # UPLOAD
-  # ============================================================
-  /upload/signature:
-    post:
-      tags:
-        - Upload
-      summary: Generate signature untuk upload gambar ke Cloudinary
-      description: 'Frontend gunakan signature ini untuk upload langsung ke Cloudinary API, lalu kirim imageUrl hasilnya ke endpoint lain seperti /consumption-logs.'
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UploadSignatureRequest'
-      responses:
-        '200':
-          description: Signature berhasil digenerate
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/UploadSignatureResponse'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  # ============================================================
   # PROFILE
   # ============================================================
   /profile:
@@ -249,7 +206,7 @@ paths:
   # ============================================================
   # CONSUMPTION
   # ============================================================
-  /consumption-logs:
+  /consumption:
     get:
       tags:
         - Consumption
@@ -343,7 +300,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /consumption-logs/{id}:
+  /consumption/{id}:
     put:
       tags:
         - Consumption
@@ -432,7 +389,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /consumption-logs/insights:
+  /consumption/insights:
     get:
       tags:
         - Consumption
@@ -1271,9 +1228,6 @@ components:
         id:
           type: string
           format: uuid
-        userId:
-          type: string
-          format: uuid
         itemName:
           type: string
           example: 'Nasi Goreng'
@@ -1285,11 +1239,10 @@ components:
             - elektronik
             - perawatan diri
             - hiburan
-            - lainnya
           example: 'makanan & minuman'
-        itemCategoryCustom:
+        reason:
           type: string
-          example: 'Jasa'
+          example: 'Lapar setelah kerja'
         amount:
           type: number
           format: decimal
@@ -1297,16 +1250,15 @@ components:
         notes:
           type: string
           example: 'Beli di warung dekat kantor'
+        consumedAt:
+          $ref: '#/components/schemas/CustomTimeStamp'
         createdAt:
           $ref: '#/components/schemas/CustomTimeStamp'
 
     AddConsumptionRequest:
       type: object
-      required: [itemName, itemCategory, amount]
+      required: [itemName, itemCategory]
       properties:
-        userId:
-          type: string
-          format: uuid
         itemName:
           type: string
           example: 'Nasi Goreng'
@@ -1318,11 +1270,10 @@ components:
             - elektronik
             - perawatan diri
             - hiburan
-            - lainnya
           example: 'makanan & minuman'
-        itemCategoryCustom:
+        reason:
           type: string
-          description: 'kalau itemCategorynya lainnya, field ini harus diisi'
+          example: 'Lapar setelah kerja'
         amount:
           type: number
           format: decimal
@@ -1330,11 +1281,8 @@ components:
         notes:
           type: string
           example: 'Beli di warung dekat kantor'
-        imageUrl:
-          type: string
-          format: uri
-          description: 'URL gambar dari Cloudinary (opsional, didapat setelah upload signed)'
-          example: 'https://res.cloudinary.com/your-cloud/image/upload/v123456789/consumption/nasi-padang.jpg'
+        consumedAt:
+          $ref: '#/components/schemas/CustomTimeStamp'
 
     ConsumptionInsights:
       type: object
@@ -1719,41 +1667,6 @@ components:
               participantCount:
                 type: integer
                 example: 200
-    UploadSignatureRequest:
-      type: object
-      required: [fileName, fileType]
-      properties:
-        fileName:
-          type: string
-          example: 'nasi-padang.jpg'
-        fileType:
-          type: string
-          enum: [image/jpeg, image/png, image/jpg]
-          example: 'image/jpeg'
-
-    UploadSignatureResponse:
-      type: object
-      properties:
-        signature:
-          type: string
-          description: Signature kriptografis yang digenerate dari Cloudinary secret
-          example: 'abc123def456...'
-        timestamp:
-          type: integer
-          description: Unix timestamp saat signature dibuat
-          example: 1716000000
-        apiKey:
-          type: string
-          description: Cloudinary API key (public)
-          example: '123456789012345'
-        cloudName:
-          type: string
-          description: Nama cloud Cloudinary kamu
-          example: 'your-cloud-name'
-        folder:
-          type: string
-          description: Folder tujuan di Cloudinary
-          example: 'consumption'
 
   securitySchemes:
     bearerAuth:

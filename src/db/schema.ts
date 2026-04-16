@@ -1,5 +1,4 @@
 import {
-  pgEnum,
   pgTable,
   varchar,
   text,
@@ -30,6 +29,13 @@ export enum DaysDurationWait {
   FOURTEEN_DAYS = 14,
   THIRTY_DAYS = 30,
 }
+export enum ConsumptionCategory {
+  FOOD_BAVERAGE = 'makanan & minuman',
+  FASHION = 'fashion',
+  ELECTRONIC = 'elektronik',
+  SELF_CARE = 'perawatan diri',
+  ENTERTAINMENT = 'hiburan',
+}
 export enum ImpulseStatus {
   WAITING = 'waiting',
   BOUGHT = 'bought',
@@ -43,22 +49,6 @@ export enum ActivityType {
   CANCEL_WISHLIST = 'cancel_wishlist',
   JOIN_CHALLENGE = 'join_challenge',
 }
-export enum ConsumptionCategory {
-  FOOD_BAVERAGE = 'makanan & minuman',
-  FASHION = 'fashion',
-  ELECTRONIC = 'elektronik',
-  SELF_CARE = 'perawatan diri',
-  ENTERTAINMENT = 'hiburan',
-  OTHER = 'lainnya',
-}
-export const consumptionCategoryEnum = pgEnum('consumption_category', [
-  'makanan & minuman',
-  'fashion',
-  'elektronik',
-  'perawatan diri',
-  'hiburan',
-  'lainnya',
-]);
 // ==========================================
 // 1. TABEL USERS
 // ==========================================
@@ -89,8 +79,8 @@ export const consumptionLogs = pgTable('consumption_logs', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   itemName: text('item_name').notNull(),
-  itemCategory: consumptionCategoryEnum('item_category').notNull(),
-  itemCategoryCustom: varchar('item_category_custom', { length: 100 }),
+  itemCategory: varchar('item_category').notNull(), // enum consumptionCategory
+  reason: text('reason'),
   imageUrl: text('image_url'),
   amount: decimal('amount', { precision: 10, scale: 2 }),
   notes: text('notes'),
@@ -110,10 +100,8 @@ export const wishlists = pgTable('wishlists', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  reason: text('reason'),
   itemName: text('item_name').notNull(),
-  itemCategory: consumptionCategoryEnum('item_category').notNull(),
-  itemCategoryCustom: varchar('item_category_custom', { length: 100 }),
+  itemCategory: varchar('item_category').notNull(), // enum consumptionCategory
   estimatetPrice: decimal('price_estimate', { precision: 10, scale: 2 }),
   isFulfilled: boolean('is_fulfilled').default(false).notNull(),
   whislistStatus: varchar('wishlist_status')
@@ -208,30 +196,6 @@ export const userActivityLogs = pgTable('user_activity_logs', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   activityType: varchar('acctivity_type', { length: 50 }).notNull(), // enum ActivityType
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-// ==========================================
-// 9. TABEL TOKEN_BLACKLIST
-// ==========================================
-export const passwordResetToken = pgTable('password_reset_token', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  token: varchar('token', { length: 255 }),
-  expiresAt: timestamp('expires_at').notNull(),
-  usedAt: timestamp('used_at'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-// ==========================================
-// 10. TABEL PASSWORD_RESET_TOKEN
-// ==========================================
-export const tokenBlacklists = pgTable('token_blacklists', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  token: text('token').notNull().unique(),
-  expiredAt: timestamp('expired_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

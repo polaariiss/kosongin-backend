@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { verifyToken } from '../middlewares/auth.middleware';
+import {
+  register,
+  login,
+  logout,
+  forgotPassword,
+  resetPassword,
+} from '../controllers/auth.controller';
+
+const router = Router();
+router.post('/register', register);
+router.post('/login', login);
+router.post('/logout', verifyToken, logout);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
+
+export default router;

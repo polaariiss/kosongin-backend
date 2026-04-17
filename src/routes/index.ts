@@ -10,10 +10,7 @@ const router = Router();
 router.use('/users', usersRoute);
 router.use('/consumption-logs', consumptionRoute);
 router.use('/upload', uploadRoute);
-<<<<<<< HEAD
 router.use('/consumption-logs', consumptionRoute);
 router.use('/auth', authRoute);
-=======
->>>>>>> bf9f3dbe62002850366c96f41ca658a0fb02db7e
 
 export default router;

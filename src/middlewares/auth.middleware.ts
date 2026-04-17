@@ -6,9 +6,8 @@ const db = drizzle(process.env.DATABASE_URL!);
 
 import type { Request, Response, NextFunction } from 'express';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
-import { number } from 'zod/index.cjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rahasia_negara';
+const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
 
 export interface AuthRequest extends Request {
   user?: any;
@@ -65,8 +64,14 @@ export const verifyToken = async (
     return res
       .status(401)
       .json({ message: 'User tidak ditemukan atau token invalid' });
-  } catch (error) {
-    return res.status(500).json({ message: 'Error verifikasi role' });
+  } catch (error: any) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token sudah kadaluarsa' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Token tidak valid' });
+    }
+    return res.status(500).json({ message: 'Error verifikasi token', error: error.message });
   }
 };
 

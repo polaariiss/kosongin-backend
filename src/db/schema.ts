@@ -212,11 +212,11 @@ export const userActivityLogs = pgTable('user_activity_logs', {
 });
 
 // ==========================================
-// 9. TABEL TOKEN_BLACKLIST
+// 9. TABEL PASSWORD_RESET_TOKEN
 // ==========================================
 export const passwordResetToken = pgTable('password_reset_token', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('id')
+  userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   token: varchar('token', { length: 255 }),
@@ -226,7 +226,7 @@ export const passwordResetToken = pgTable('password_reset_token', {
 });
 
 // ==========================================
-// 10. TABEL PASSWORD_RESET_TOKEN
+// 10. TABEL TOKEN_BLACKLIST
 // ==========================================
 export const tokenBlacklists = pgTable('token_blacklists', {
   id: uuid('id').primaryKey().defaultRandom(),

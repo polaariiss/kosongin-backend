@@ -7,8 +7,6 @@ import crypto from 'crypto';
 import { users, tokenBlacklists, passwordResetToken } from '../db/schema';
 import { sendResetPasswordEmail } from '../utility/mail.service';
 import {
-  registerSchema,
-  loginSchema,
   resetPasswordSchema,
   forgetPasswordSchema,
 } from '../schemas/auth.schema';
@@ -23,7 +21,7 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const parsed = registerSchema.parse(req.body);
+    const parsed = req.body;
     // check uniqueness
     let check = parsed.nickname;
     let [userCheck] = await db
@@ -73,7 +71,7 @@ export const login = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const parsed = loginSchema.parse(req.body);
+  const parsed = req.body;
 
   // check existing field between email and nickname
   const [userChecked] = parsed.email
@@ -128,15 +126,15 @@ export const forgotPassword = async (
   next: NextFunction,
 ) => {
   try {
-    const parsed = forgetPasswordSchema.parse(req.body);
+    const parsed = req.body;
     const [user] = await db
       .select()
       .from(users)
       .where(eq(users.email, parsed.email));
 
     if (!user) {
-      return res.status(200).json({
-        message: 'Jika email terdaftar, link reset akan dikirim.',
+      return res.status(404).json({
+        message: 'Email tidak terdaftar',
       });
     }
 

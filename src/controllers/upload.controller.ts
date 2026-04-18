@@ -1,9 +1,14 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import cloudinary from '../config/cloudinary';
+import { ApiError } from '../utility/api-error';
 
-export const getUploadSignature = async (req: Request, res: Response) => {
+export const getUploadSignature = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const { fileName, fileType } = req.body;
+    // const { fileName, fileType } = req.body;
 
     const timestamp = Math.round(new Date().getTime() / 1000);
     const folder = 'consumption';
@@ -25,6 +30,6 @@ export const getUploadSignature = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Gagal generate signature' });
+    next(new ApiError(500, 'Gagal generate signature'));
   }
 };

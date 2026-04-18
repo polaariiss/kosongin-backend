@@ -11,7 +11,7 @@ export const createWishlist = async (
   try {
     const userId = req.user.id;
     const [wishlist] = await wishlistQuery.insertWishlist(req.body, userId);
-    
+
     res.status(201).json({
       status: 'success',
       data: wishlist,
@@ -29,7 +29,7 @@ export const getWishlists = async (
   try {
     const userId = req.user.id;
     const wishlists = await wishlistQuery.findWishlistsByUserId(userId);
-    
+
     res.status(200).json({
       status: 'success',
       data: wishlists,
@@ -47,19 +47,22 @@ export const updateWishlist = async (
   try {
     const id = req.params['id'] as string;
     const { whislistStatus } = req.body;
-    
+
     const wishlist = await wishlistQuery.findWishlistById(id);
     if (!wishlist) {
       throw new ApiError(404, 'Wishlist item tidak ditemukan');
     }
-    
+
     // Ensure the item belongs to the user
     if (wishlist.userId !== req.user.id) {
-        throw new ApiError(403, 'Anda tidak memiliki akses ke item ini');
+      throw new ApiError(403, 'Anda tidak memiliki akses ke item ini');
     }
 
-    const [updatedWishlist] = await wishlistQuery.updateWishlistStatus(id, whislistStatus);
-    
+    const [updatedWishlist] = await wishlistQuery.updateWishlistStatus(
+      id,
+      whislistStatus,
+    );
+
     res.status(200).json({
       status: 'success',
       data: updatedWishlist,

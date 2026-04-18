@@ -4,6 +4,7 @@ import consumptionRoute from './consumptions.route';
 import uploadRoute from './upload.route';
 import authRoute from './auth.routes';
 import profileRoute from './profile.route';
+import wishlistRoute from './wishlist.route';
 
 const router = Router();
 
@@ -11,8 +12,8 @@ const router = Router();
 router.use('/users', usersRoute);
 router.use('/consumption-logs', consumptionRoute);
 router.use('/upload', uploadRoute);
-router.use('/consumption-logs', consumptionRoute);
 router.use('/auth', authRoute);
 router.use('/profile', profileRoute);
+router.use('/wishlist', wishlistRoute);
 
 export default router;

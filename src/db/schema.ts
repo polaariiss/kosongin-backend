@@ -115,7 +115,9 @@ export const wishlists = pgTable('wishlists', {
   itemCategory: consumptionCategoryEnum('item_category').notNull(),
   itemCategoryCustom: varchar('item_category_custom', { length: 100 }),
   estimatetPrice: decimal('price_estimate', { precision: 10, scale: 2 }),
+  waitingDays: integer('waiting_days').default(0).notNull(),
   isFulfilled: boolean('is_fulfilled').default(false).notNull(),
+  notificationSent: boolean('notification_sent').default(false).notNull(),
   whislistStatus: varchar('wishlist_status')
     .default(ImpulseStatus['WAITING'])
     .notNull(), // enum impulseStatus (as history final status)

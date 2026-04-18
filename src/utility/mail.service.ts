@@ -92,3 +92,36 @@ export const sendReminderEmail = async (
     });
   }
 };
+
+export const sendImpulseDoneEmail = async (
+  toEmail: string,
+  fullName: string,
+  itemName: string,
+) => {
+  const html = `
+    <h2>Hei, ${fullName}! 👋</h2>
+    <p>Masa tunggu untuk item <strong>"${itemName}"</strong> sudah selesai.</p>
+    <p>Sekarang kamu bisa memutuskan apakah benar-benar ingin membeli item ini atau tidak.</p>
+    <p>Ingat, belanja bijak itu keren!</p>
+    <a href="${process.env.FRONTEND_URL}/wishlist">Cek Wishlist Sekarang</a>
+  `;
+
+  if (isDev) {
+    const transporter = await getTransporter();
+    const info = await transporter!.sendMail({
+      from: '"App Name" <no-reply@app.com>',
+      to: toEmail,
+      subject: `✨ Masa Tunggu "${itemName}" Selesai!`,
+      html,
+    });
+    console.log('📧 Preview email:', nodemailer.getTestMessageUrl(info));
+  } else {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'App Name <no-reply@domainmu.com>',
+      to: toEmail,
+      subject: `✨ Masa Tunggu "${itemName}" Selesai!`,
+      html,
+    });
+  }
+};

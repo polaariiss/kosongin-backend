@@ -1,10 +1,9 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { users, admin, tokenBlacklists } from '../db/schema';
-
-const db = drizzle(process.env.DATABASE_URL!);
+import { db } from '../config/db';
 
 import type { Request, Response, NextFunction } from 'express';
+import { ApiError } from '../utility/api-error';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
@@ -18,30 +17,32 @@ export const verifyToken = async (
   res: Response,
   next: NextFunction,
 ) => {
+  // cek token
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res
-      .status(401)
-      .json({ message: `Akses ditolak. Token tidak ditemukan.` });
+    return next(new ApiError(401, 'Akses ditolak. Token tidak ditemukan.'));
   }
 
   const token = authHeader.split(' ')[1] as string;
   try {
+    // cek token blacklist
     const [blacklist] = await db
       .select()
       .from(tokenBlacklists)
       .where(eq(tokenBlacklists.token, token));
     if (blacklist) {
-      return res
-        .status(401)
-        .json({ message: 'token sudah tidak valid. Silahkan login kembali' });
+      return next(
+        new ApiError(401, 'token sudah tidak valid. Silahkan login kembali'),
+      );
     }
 
+    // verifikasi token
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & {
       id: string;
     };
-
     req.user = decoded;
+
+    // cek DB user/admin
     const [userData] = await db
       .select()
       .from(users)
@@ -49,29 +50,27 @@ export const verifyToken = async (
     if (userData) {
       req.user.role = 'user';
       return next();
-    } else {
-      const [adminData] = await db
-        .select()
-        .from(admin)
-        .where(eq(admin.id, decoded.id));
-      if (adminData) {
-        req.user.role = 'admin';
-        return next();
-      }
+    }
+
+    const [adminData] = await db
+      .select()
+      .from(admin)
+      .where(eq(admin.id, decoded.id));
+    if (adminData) {
+      req.user.role = 'admin';
+      return next();
     }
 
     // kalau tidak ada di tabel users dan admin
-    return res
-      .status(401)
-      .json({ message: 'User tidak ditemukan atau token invalid' });
+    throw new ApiError(401, 'User tidak ditemukan atau token invalid');
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token sudah kadaluarsa' });
+      return next(new ApiError(401, 'Token sudah kadaluarsa'));
     }
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Token tidak valid' });
+      return next(new ApiError(401, 'Token tidak valid'));
     }
-    return res.status(500).json({ message: 'Error verifikasi token', error: error.message });
+    next(error);
   }
 };
 
@@ -79,9 +78,7 @@ export const verifyToken = async (
 export const authorizeRole = (allowedRoles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({ error: 'Terlarang. Anda tidak memiliki izin.' });
+      return next(new ApiError(403, 'Anda tidak memiliki izin'));
     }
     next();
   };

@@ -17,6 +17,7 @@ import {
 } from '../schemas/auth.schema';
 import type { AuthRequest } from '../middlewares/auth.middleware';
 import { db } from '../config/db';
+import { ApiError } from '../utility/api-error';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
 
@@ -42,14 +43,12 @@ export const register = async (
     }
 
     if (userCheck) {
-      return res.status(400).json({ message: `${check} already exist` });
+      throw new ApiError(400, `${check} is already exist`);
     }
 
     // check password & passwordConfirmation
     if (parsed.password !== parsed.passwordConfirmation) {
-      return res
-        .status(400)
-        .json({ message: "password didn't match with confirmation" });
+      throw new ApiError(400, "passwod didn't match with confirmation");
     }
     const hashedPassword = await bcrypt.hash(parsed.password, 10);
 
@@ -92,7 +91,7 @@ export const login = async (
     : await db.select().from(users).where(eq(users.nickName, parsed.nickname!));
 
   if (!userChecked) {
-    return res.status(401).json({ message: 'Email/Nickname salah' });
+    throw new ApiError(401, 'Email / Nickname is wrong');
   }
 
   const isPasswordValid = await bcrypt.compare(
@@ -101,7 +100,7 @@ export const login = async (
   );
 
   if (!isPasswordValid) {
-    return res.status(401).json({ message: 'Password salah' });
+    throw new ApiError(401, 'Password is wrong');
   }
 
   const payload = {
@@ -155,6 +154,7 @@ export const forgotPassword = async (
       return res.status(404).json({
         message: 'Email tidak terdaftar',
       });
+      throw new ApiError(404, "Email didn't exist");
     }
 
     // generate token
@@ -189,9 +189,7 @@ export const resetPassword = async (
 
     // cek password & passwordConfirmation
     if (parsed.password !== parsed.passwordConfirmation) {
-      return res
-        .status(400)
-        .json({ message: 'password dan password confirmation tidak cocok' });
+      throw new ApiError(400, "password and confirmation didn't match");
     }
 
     // cari token valid
@@ -200,17 +198,17 @@ export const resetPassword = async (
       .from(passwordResetToken)
       .where(eq(passwordResetToken.token, parsed.token));
     if (!resetRecord) {
-      return res.status(400).json({ message: 'token tidak valid' });
+      throw new ApiError(400, 'token invalid');
     }
 
     // cek apakah token sudah dipakai
     if (resetRecord.usedAt) {
-      return res.status(400).json({ message: 'token sudah pernah digunakan' });
+      throw new ApiError(400, 'token already use');
     }
 
     // cek apakah token sudah expired
     if (new Date() > resetRecord.expiresAt) {
-      return res.status(400).json({ message: 'token sudah kadaluarsa' });
+      throw new ApiError(400, 'token is expired');
     }
 
     const hashedPassword = await bcrypt.hash(parsed.password, 10);

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import appRoutes from './routes/index.js';
-import { startReminderCron } from './utility/reminder.cron.js';
+import { startReminderCron, startImpulseCron } from './utility/reminder.cron.js';
 import { GlobalErrorHandler } from './middlewares/error.middleware.js';
 
 const PORT = 5000;
@@ -19,3 +19,4 @@ app.listen(PORT, () => {
 });
 
 startReminderCron();
+startImpulseCron();

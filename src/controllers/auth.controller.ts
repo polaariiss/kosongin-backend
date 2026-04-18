@@ -1,18 +1,23 @@
 import type { Request, Response, NextFunction } from 'express';
 import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { users, tokenBlacklists, passwordResetToken } from '../db/schema';
+import {
+  users,
+  tokenBlacklists,
+  passwordResetToken,
+  userActivityLogs,
+  ActivityType,
+} from '../db/schema';
 import { sendResetPasswordEmail } from '../utility/mail.service';
 import {
   resetPasswordSchema,
   forgetPasswordSchema,
 } from '../schemas/auth.schema';
 import type { AuthRequest } from '../middlewares/auth.middleware';
+import { db } from '../config/db';
 
-const db = drizzle(process.env.DATABASE_URL!);
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
 
 export const register = async (
@@ -49,11 +54,19 @@ export const register = async (
     const hashedPassword = await bcrypt.hash(parsed.password, 10);
 
     // insert new user to db
-    const result = await db.insert(users).values({
-      nickName: parsed.nickname,
-      fullName: parsed.fullname,
-      email: parsed.email,
-      password: hashedPassword,
+    const [result] = await db
+      .insert(users)
+      .values({
+        nickName: parsed.nickname,
+        fullName: parsed.fullname,
+        email: parsed.email,
+        password: hashedPassword,
+      })
+      .returning({ id: users.id });
+
+    await db.insert(userActivityLogs).values({
+      userId: result?.id as string,
+      activityType: ActivityType.REGISTER,
     });
 
     // return response
@@ -96,6 +109,12 @@ export const login = async (
   };
 
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+
+  await db.insert(userActivityLogs).values({
+    userId: userChecked.id,
+    activityType: ActivityType.LOGIN,
+  });
+
   return res.status(201).json({ message: 'login completed', token });
 };
 

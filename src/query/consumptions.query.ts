@@ -1,9 +1,12 @@
 import { db } from '../config/db';
-import { consumptionLogs, ConsumptionCategory } from '../db/schema';
+import {
+  consumptionLogs,
+  ConsumptionCategory,
+} from '../db/schema';
 import { eq, and, desc, asc } from 'drizzle-orm';
 
 export interface CreateConsumptionData {
-  userId: string;
+  // userId: string;
   itemName: string;
   itemCategory: ConsumptionCategory;
   itemCategoryCustom?: string;
@@ -14,17 +17,17 @@ export interface CreateConsumptionData {
 }
 
 export interface GetLogsOptions {
-  userId: string;
+  // userId: string;
   category?: ConsumptionCategory;
   sortBy?: 'consumedAt' | 'amount' | 'createdAt';
   order?: 'asc' | 'desc';
 }
 
-export const insertLog = async (data: CreateConsumptionData) => {
+export const insertLog = async (data: CreateConsumptionData, userId: string) => {
   return await db
     .insert(consumptionLogs)
     .values({
-      userId: data.userId,
+      userId: userId,
       itemName: data.itemName,
       itemCategory: data.itemCategory,
       itemCategoryCustom: data.itemCategoryCustom,
@@ -36,8 +39,8 @@ export const insertLog = async (data: CreateConsumptionData) => {
     .returning();
 };
 
-export const findLogs = async (options: GetLogsOptions) => {
-  const { userId, category, sortBy = 'consumedAt', order = 'desc' } = options;
+export const findLogs = async (options: GetLogsOptions, userId: string) => {
+  const { category, sortBy = 'consumedAt', order = 'desc' } = options;
 
   let conditions = eq(consumptionLogs.userId, userId);
 
@@ -72,7 +75,6 @@ export const updateLogById = async (
 ) => {
   const updateData: any = {};
 
-  if (data.userId) updateData.userId = data.userId;
   if (data.itemName) updateData.itemName = data.itemName;
   if (data.itemCategory) updateData.itemCategory = data.itemCategory;
   if (data.itemCategoryCustom)

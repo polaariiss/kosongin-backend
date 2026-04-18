@@ -6,29 +6,40 @@ import {
   updateLogById, 
   deleteLogById 
 } from '../query/consumptions.query';
+import { db } from '../config/db';
+import type { AuthRequest } from '../middlewares/auth.middleware';
+import { userActivityLogs, ActivityType } from '../db/schema';
 
-export const createConsumptionLog = async (req: Request, res: Response) => {
+export const createConsumptionLog = async (req: AuthRequest, res: Response) => {
   try {
-    const newLog = await insertLog(req.body);
+    const newLog = await insertLog(req.body, req.user.id);
+
+    await db.insert(userActivityLogs).values({
+      userId: req.user.id,
+      activityType: ActivityType.ADD_CONSUMPTION,
+    });
+
     res.status(201).json({
       message: 'Log konsumsi berhasil dicatat',
       data: newLog[0]
     });
+
   } catch (error) {
     console.error("Error create log:", error);
     res.status(500).json({ error: 'Gagal membuat log konsumsi' });
   }
 };
 
-export const getConsumptionLogs = async (req: Request, res: Response) => {
+export const getConsumptionLogs = async (req: AuthRequest, res: Response) => {
   try {
-    const { userId, category, sortBy, order } = req.query as any;
+    const { category, sortBy, order } = req.query as any;
+    const userId = req.user.id;
     
     if (!userId) {
       return res.status(400).json({ error: 'User ID wajib disertakan dalam query' });
     }
 
-    const logs = await findLogs({ userId, category, sortBy, order });
+    const logs = await findLogs({ category, sortBy, order }, req.user.id);
     res.json(logs);
   } catch (error) {
     console.error("Error fetch logs:", error);

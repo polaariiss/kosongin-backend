@@ -3,18 +3,19 @@ import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import appRoutes from './routes/index.js';
 import path from 'path';
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 import { ZodError } from 'zod';
+import { startReminderCron } from './utility/reminder.cron.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 5000;
 
 app.use(express.json());
 
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+// app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Menghubungkan semua route dari folder routes
 app.use('/api', appRoutes);
@@ -43,3 +44,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+startReminderCron()

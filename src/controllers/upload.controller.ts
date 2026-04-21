@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import cloudinary from '../config/cloudinary';
 import { ApiError } from '../utility/api-error';
+import 'dotenv/config';
 
 export const getUploadSignature = async (
   req: Request,
@@ -8,10 +9,8 @@ export const getUploadSignature = async (
   next: NextFunction,
 ) => {
   try {
-    // const { fileName, fileType } = req.body;
-
     const timestamp = Math.round(new Date().getTime() / 1000);
-    const folder = 'consumption';
+    const folder = process.env.UPLOAD_CONSUMPTION_FOLDER;
 
     // Generate signature menggunakan Cloudinary API secret
     const signature = cloudinary.utils.api_sign_request(

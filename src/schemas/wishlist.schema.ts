@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { ConsumptionCategory, ImpulseStatus } from '../db/schema';
+import { ConsumptionCategory, DaysDurationWait, ImpulseStatus } from '../db/schema';
 
 export const wishlistCategorySchema = z.nativeEnum(ConsumptionCategory);
 export const wishlistStatusSchema = z.nativeEnum(ImpulseStatus);
+export const waitingDaysSchema = z.nativeEnum(DaysDurationWait)
 
 export const createWishlistSchema = z.object({
   itemName: z.string().min(1, 'Nama item wajib diisi'),
@@ -12,7 +13,7 @@ export const createWishlistSchema = z.object({
     .max(100, 'Nama kategori kustom maksimal 100 karakter')
     .optional(),
   estimatetPrice: z.coerce.number().min(0, 'Harga harus lebih dari atau sama dengan 0'),
-  waitingDays: z.coerce.number().min(0, 'Hari tunggu minimal 0'),
+  waitingDays: waitingDaysSchema,
   reason: z.string().optional(),
 });
 

@@ -6,7 +6,6 @@ import {
 import { eq, and, desc, asc } from 'drizzle-orm';
 
 export interface CreateConsumptionData {
-  // userId: string;
   itemName: string;
   itemCategory: ConsumptionCategory;
   itemCategoryCustom?: string;
@@ -17,7 +16,6 @@ export interface CreateConsumptionData {
 }
 
 export interface GetLogsOptions {
-  // userId: string;
   category?: ConsumptionCategory;
   sortBy?: 'consumedAt' | 'amount' | 'createdAt';
   order?: 'asc' | 'desc';

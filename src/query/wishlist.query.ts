@@ -1,5 +1,5 @@
 import { db } from '../config/db';
-import { wishlists, ImpulseStatus, ConsumptionCategory } from '../db/schema';
+import { wishlists, ImpulseStatus, ConsumptionCategory, DaysDurationWait } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 
 export interface CreateWishlistData {
@@ -7,7 +7,7 @@ export interface CreateWishlistData {
   itemCategory: ConsumptionCategory;
   itemCategoryCustom?: string;
   estimatetPrice: number;
-  waitingDays: number;
+  waitingDays: DaysDurationWait;
   reason?: string;
 }
 

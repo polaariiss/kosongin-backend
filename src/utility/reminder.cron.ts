@@ -68,49 +68,76 @@ export const startImpulseCron = () => {
 };
 
 export const startReminderCron = () => {
-  cron.schedule('* * * * *', async () => {
-    const now = new Date();
-    const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  cron.schedule(
+    '* * * * *',
+    async () => {
+      const now = new Date();
+      // Gunakan Intl untuk mendapatkan waktu di Jakarta agar konsisten
+      const jakartaTime = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(now);
 
-    const usersToRemind = await db
-      .select()
-      .from(users)
-      .where(
-        and(
-          eq(users.reminderEnabled, true),
-          eq(users.reminderTime, currentTime),
-        ),
-      );
-    for (const user of usersToRemind) {
-      const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(now.setHours(23, 59, 59, 999));
-      const [alreadySent] = await db
+      const [hour, minute] = jakartaTime.split(':');
+      const currentTime = `${hour}:${minute}`;
+
+      const usersToRemind = await db
         .select()
-        .from(emailLogs)
+        .from(users)
         .where(
           and(
-            eq(emailLogs.userId, user.id),
-            eq(emailLogs.emailType, EmailType.REMINDER),
-            gte(emailLogs.sentAt, startOfDay),
-            lte(emailLogs.sentAt, endOfDay),
+            eq(users.reminderEnabled, true),
+            eq(users.reminderTime, currentTime),
           ),
         );
-      if (alreadySent) continue;
-      try {
-        await sendReminderEmail(user.email, user.fullName);
 
-        await db.insert(emailLogs).values({
-          userId: user.id,
-          emailType: EmailType.REMINDER,
-          status: EmailStatus.DELIVERED,
-        });
-      } catch (error) {
-        await db.insert(emailLogs).values({
-            userId: user.id,
-            emailType: EmailType.REMINDER,
-            status: EmailStatus.FAILED
-        })
-      }
-    }
-  });
+      if (usersToRemind.length === 0) return;
+
+      console.log(`⏰ Sending reminders to ${usersToRemind.length} users...`);
+
+      // Jalankan secara paralel agar tidak memblokir cron menit berikutnya
+      await Promise.all(
+        usersToRemind.map(async (user) => {
+          try {
+            // Cek apakah hari ini sudah dikirim (untuk menghindari duplikasi)
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            
+            const [alreadySent] = await db
+              .select()
+              .from(emailLogs)
+              .where(
+                and(
+                  eq(emailLogs.userId, user.id),
+                  eq(emailLogs.emailType, EmailType.REMINDER),
+                  gte(emailLogs.sentAt, startOfDay),
+                ),
+              );
+
+            if (alreadySent) return;
+
+            await sendReminderEmail(user.email, user.fullName);
+
+            await db.insert(emailLogs).values({
+              userId: user.id,
+              emailType: EmailType.REMINDER,
+              status: EmailStatus.DELIVERED,
+            });
+          } catch (error) {
+            console.error(`❌ Failed to send reminder to ${user.email}:`, error);
+            await db.insert(emailLogs).values({
+              userId: user.id,
+              emailType: EmailType.REMINDER,
+              status: EmailStatus.FAILED,
+            });
+          }
+        }),
+      );
+    },
+    {
+      timezone: 'Asia/Jakarta',
+    },
+  );
 };

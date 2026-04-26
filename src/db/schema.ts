@@ -43,6 +43,14 @@ export enum ActivityType {
   CANCEL_WISHLIST = 'cancel_wishlist',
   JOIN_CHALLENGE = 'join_challenge',
 }
+export const activityTypeEnum = pgEnum('activity_type', [
+  'login',
+  'register',
+  'add_consumption',
+  'add_wishlist',
+  'cancel_wishlist',
+  'join_challenge'  
+])
 export enum ConsumptionCategory {
   FOOD_BAVERAGE = 'makanan & minuman',
   FASHION = 'fashion',
@@ -209,7 +217,7 @@ export const userActivityLogs = pgTable('user_activity_logs', {
   userId: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  activityType: varchar('acctivity_type', { length: 50 }).notNull(), // enum ActivityType
+  activityType: activityTypeEnum('activity_type').notNull(), // enum ActivityType
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

@@ -13,7 +13,6 @@ import {
 import { sendResetPasswordEmail } from '../utility/mail.service';
 import {
   resetPasswordSchema,
-  forgetPasswordSchema,
 } from '../schemas/auth.schema';
 import type { AuthRequest } from '../middlewares/auth.middleware';
 import { db } from '../config/db';

@@ -22,6 +22,13 @@
       "when": 1776388606162,
       "tag": "0002_windy_luke_cage",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777204190658,
+      "tag": "0003_modern_shotgun",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,8 @@ import authRoute from './auth.routes';
 import profileRoute from './profile.route';
 import wishlistRoute from './wishlist.route';
 import dashboardInsightRoute from './dashboard_insight.routes';
+import challengeRoute from './challenges.route';
+import adminChallengeRoute from './admin_challenges.route';
 
 const router = Router();
 
@@ -17,5 +19,7 @@ router.use('/auth', authRoute);
 router.use('/profile', profileRoute);
 router.use('/wishlist', wishlistRoute);
 router.use('/dashboard/insight', dashboardInsightRoute);
+router.use('/challenge', challengeRoute);
+router.use('/admin/challenges', adminChallengeRoute);
 
 export default router;

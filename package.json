@@ -31,6 +31,7 @@
     "cloudinary": "^2.9.0",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
+    "fast-csv": "^5.0.5",
     "jsonwebtoken": "^9.0.3",
     "node-cache": "^5.1.2",
     "node-cron": "^4.2.1",

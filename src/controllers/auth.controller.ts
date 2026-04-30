@@ -9,11 +9,10 @@ import {
   passwordResetToken,
   userActivityLogs,
   ActivityType,
+  admin,
 } from '../db/schema';
 import { sendResetPasswordEmail } from '../utility/mail.service';
-import {
-  resetPasswordSchema,
-} from '../schemas/auth.schema';
+import { resetPasswordSchema } from '../schemas/auth.schema';
 import type { AuthRequest } from '../middlewares/auth.middleware';
 import { db } from '../config/db';
 import { ApiError } from '../utility/api-error';
@@ -82,38 +81,75 @@ export const login = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const parsed = req.body;
+  try {
+    const parsed = req.body;
 
-  // check existing field between email and nickname
-  const [userChecked] = parsed.email
-    ? await db.select().from(users).where(eq(users.email, parsed.email))
-    : await db.select().from(users).where(eq(users.nickName, parsed.nickname!));
+    // 1. Cari di tabel users dulu
+    let userChecked: any = parsed.email
+      ? (await db.select().from(users).where(eq(users.email, parsed.email)))[0]
+      : (
+          await db
+            .select()
+            .from(users)
+            .where(eq(users.nickName, parsed.nickname!))
+        )[0];
 
-  if (!userChecked) {
-    throw new ApiError(401, 'Email / Nickname is wrong');
+    let role = 'user';
+
+    // 2. Kalau tidak ada di users, cari di tabel admin
+    if (!userChecked) {
+      userChecked = parsed.email
+        ? (
+            await db.select().from(admin).where(eq(admin.email, parsed.email))
+          )[0]
+        : (
+            await db
+              .select()
+              .from(admin)
+              .where(eq(admin.nickName, parsed.nickname!))
+          )[0];
+
+      if (userChecked) {
+        role = 'admin';
+      }
+    }
+
+    if (!userChecked) {
+      throw new ApiError(401, 'Email / Nickname salah');
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      parsed.password,
+      userChecked.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new ApiError(401, 'Password salah');
+    }
+
+    const payload = {
+      id: userChecked.id,
+      role: role,
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+
+    // Log aktivitas hanya untuk user biasa
+    if (role === 'user') {
+      await db.insert(userActivityLogs).values({
+        userId: userChecked.id,
+        activityType: ActivityType.LOGIN,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Login berhasil',
+      token,
+    });
+  } catch (error) {
+    next(error);
   }
-
-  const isPasswordValid = await bcrypt.compare(
-    parsed.password,
-    userChecked.password,
-  );
-
-  if (!isPasswordValid) {
-    throw new ApiError(401, 'Password is wrong');
-  }
-
-  const payload = {
-    id: userChecked.id,
-  };
-
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
-
-  await db.insert(userActivityLogs).values({
-    userId: userChecked.id,
-    activityType: ActivityType.LOGIN,
-  });
-
-  return res.status(201).json({ message: 'login completed', token });
 };
 
 export const logout = async (

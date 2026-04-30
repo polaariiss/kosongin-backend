@@ -145,7 +145,7 @@ export const login = async (
     return res.status(200).json({
       success: true,
       message: 'Login berhasil',
-      data: token,
+      data: { token: token },
     });
   } catch (error) {
     next(error);

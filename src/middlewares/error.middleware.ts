@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utility/api-error';
-import { success, ZodError } from 'zod';
+import { ZodError } from 'zod';
 
 export const GlobalErrorHandler = (
   err: any,
@@ -24,7 +24,7 @@ export const GlobalErrorHandler = (
 
   // Handle Custom ApiError
   if (err instanceof ApiError) {
-    res.status(err.statusCode).json({
+    return res.status(err.statusCode).json({
       success: false,
       message: err.message,
     });

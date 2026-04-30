@@ -15,6 +15,7 @@ export const validateBody = (schema: ZodObject) => {
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({
+          success: false,
           message: 'Validasi data (body) gagal',
           errors: error.issues.map((err) => ({
             field: err.path.join('.'),
@@ -22,7 +23,7 @@ export const validateBody = (schema: ZodObject) => {
           })),
         });
       }
-      next(error); // Lempar error lain ke global error handler
+      next(error); 
     }
   };
 };
@@ -41,6 +42,7 @@ export const validateParams = (schema: ZodObject) => {
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({
+          success: false,
           message: 'Validasi parameter URL gagal',
           errors: error.issues.map((err) => ({
             field: err.path.join('.'),
@@ -66,6 +68,7 @@ export const validateQuery = (schema: ZodObject) => {
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({
+          success: false,
           message: 'Validasi query parameter gagal',
           errors: error.issues.map((err) => ({
             field: err.path.join('.'),

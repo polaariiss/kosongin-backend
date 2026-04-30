@@ -145,7 +145,7 @@ export const login = async (
     return res.status(200).json({
       success: true,
       message: 'Login berhasil',
-      token,
+      data: token,
     });
   } catch (error) {
     next(error);
@@ -167,7 +167,10 @@ export const logout = async (
     // insert token ke db
     await db.insert(tokenBlacklists).values({ token, expiredAt });
 
-    return res.status(200).json({ message: 'logout berhasil' });
+    return res.status(200).json({
+      success: true,
+      message: 'logout berhasil',
+    });
   } catch (error) {
     next(error);
   }
@@ -186,9 +189,6 @@ export const forgotPassword = async (
       .where(eq(users.email, parsed.email));
 
     if (!user) {
-      return res.status(404).json({
-        message: 'Email tidak terdaftar',
-      });
       throw new ApiError(404, "Email didn't exist");
     }
 
@@ -260,7 +260,10 @@ export const resetPassword = async (
       .set({ usedAt: new Date() })
       .where(eq(passwordResetToken.token, parsed.token));
 
-    return res.status(200).json({ message: 'password berhasil direset' });
+    return res.status(200).json({
+      success: true,
+      message: 'password berhasil direset',
+    });
   } catch (error) {
     next(error);
   }

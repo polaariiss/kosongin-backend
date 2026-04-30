@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import usersRoute from './users.route';
 import consumptionRoute from './consumptions.route';
 import uploadRoute from './upload.route';
 import authRoute from './auth.routes';
@@ -13,7 +12,6 @@ import helperRoute from './helper.route';
 const router = Router();
 
 // Semua route didaftarkan disini
-router.use('/users', usersRoute);
 router.use('/consumption-logs', consumptionRoute);
 router.use('/upload', uploadRoute);
 router.use('/auth', authRoute);

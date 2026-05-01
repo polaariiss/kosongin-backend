@@ -1,21 +1,49 @@
 import { z } from 'zod';
-import { ConsumptionCategory, DaysDurationWait, ImpulseStatus } from '../db/schema';
+import {
+  ConsumptionCategory,
+  DaysDurationWait,
+  ImpulseStatus,
+} from '../db/schema';
 
 export const wishlistCategorySchema = z.nativeEnum(ConsumptionCategory);
 export const wishlistStatusSchema = z.nativeEnum(ImpulseStatus);
-export const waitingDaysSchema = z.nativeEnum(DaysDurationWait)
+export const waitingDaysSchema = z.nativeEnum(DaysDurationWait);
 
-export const createWishlistSchema = z.object({
-  itemName: z.string().min(1, 'Nama item wajib diisi'),
-  itemCategory: wishlistCategorySchema,
-  itemCategoryCustom: z
-    .string()
-    .max(100, 'Nama kategori kustom maksimal 100 karakter')
-    .optional(),
-  estimatetPrice: z.coerce.number().min(0, 'Harga harus lebih dari atau sama dengan 0'),
-  waitingDays: waitingDaysSchema,
-  reason: z.string().optional(),
-});
+export const createWishlistSchema = z
+  .object({
+    itemName: z.string().min(1, 'Nama item wajib diisi'),
+    itemCategory: wishlistCategorySchema,
+    itemCategoryCustom: z
+      .string()
+      .max(100, 'Nama kategori kustom maksimal 100 karakter')
+      .optional()
+      .nullable(),
+    estimatePrice: z.coerce
+      .number()
+      .min(0, 'Harga harus lebih dari atau sama dengan 0'),
+    waitingDays: waitingDaysSchema,
+    reason: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const isOther = data.itemCategory === ConsumptionCategory.OTHER;
+    const hasCustom =
+      data.itemCategoryCustom && data.itemCategoryCustom.trim() !== '';
+
+    if (isOther && !hasCustom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Kategori kustom wajib diisi jika memilih kategori 'lainnya'",
+        path: ['itemCategoryCustom'],
+      });
+    } else if (!isOther && hasCustom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Kategori kustom hanya boleh diisi jika memilih kategori 'lainnya'",
+        path: ['itemCategoryCustom'],
+      });
+    }
+  });
 
 export const updateWishlistSchema = z.object({
   whislistStatus: wishlistStatusSchema,

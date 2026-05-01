@@ -49,8 +49,8 @@ export const activityTypeEnum = pgEnum('activity_type', [
   'add_consumption',
   'add_wishlist',
   'cancel_wishlist',
-  'join_challenge'  
-])
+  'join_challenge',
+]);
 export enum ConsumptionCategory {
   FOOD_BAVERAGE = 'makanan & minuman',
   FASHION = 'fashion',
@@ -100,7 +100,7 @@ export const consumptionLogs = pgTable('consumption_logs', {
   itemCategory: consumptionCategoryEnum('item_category').notNull(),
   itemCategoryCustom: varchar('item_category_custom', { length: 100 }),
   imageUrl: text('image_url'),
-  amount: decimal('amount', { precision: 10, scale: 2 }),
+  amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   notes: text('notes'),
   consumedAt: timestamp('consumed_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -122,7 +122,7 @@ export const wishlists = pgTable('wishlists', {
   itemName: text('item_name').notNull(),
   itemCategory: consumptionCategoryEnum('item_category').notNull(),
   itemCategoryCustom: varchar('item_category_custom', { length: 100 }),
-  estimatetPrice: decimal('price_estimate', { precision: 10, scale: 2 }),
+  estimatePrice: decimal('price_estimate', { precision: 10, scale: 2 }),
   waitingDays: integer('waiting_days').default(0).notNull(),
   isFulfilled: boolean('is_fulfilled').default(false).notNull(),
   notificationSent: boolean('notification_sent').default(false).notNull(),

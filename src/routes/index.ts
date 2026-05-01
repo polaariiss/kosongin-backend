@@ -23,6 +23,3 @@ router.use('/admin', adminRoute);
 router.use('/helper', helperRoute);
 
 export default router;
-
-
-

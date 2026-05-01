@@ -22,7 +22,7 @@ router.post(
   '/',
   verifyToken,
   validateBody(createWishlistSchema),
-  createWishlist
+  createWishlist,
 );
 
 // GET /wishlist — ambil semua item wishlist milik user
@@ -34,7 +34,7 @@ router.patch(
   verifyToken,
   validateParams(wishlistIdSchema),
   validateBody(updateWishlistSchema),
-  updateWishlist
+  updateWishlist,
 );
 
 export default router;

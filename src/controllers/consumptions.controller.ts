@@ -43,11 +43,7 @@ export const getConsumptionLogs = async (
     const { category, sortBy, order } = req.query as any;
     const userId = req.user.id;
 
-    if (!userId) {
-      throw new ApiError(400, 'User ID wajib disertakan dalam query');
-    }
-
-    const logs = await findLogs({ category, sortBy, order }, req.user.id);
+    const logs = await findLogs({ category, sortBy, order }, userId);
     res.json(logs);
   } catch (error) {
     console.error('Error fetch logs:', error);
@@ -56,45 +52,62 @@ export const getConsumptionLogs = async (
 };
 
 export const updateConsumptionLog = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const id = req.params.id as string;
-    const log = await findLogById(id);
+    const userId = req.user.id;
 
-    if (!log) {
-      throw new ApiError(404, 'log tidak ditemukan');
+    const updatedLog = await updateLogById(id, userId, req.body);
+
+    if (updatedLog.length === 0) {
+      throw new ApiError(
+        404,
+        'Log tidak ditemukan atau Anda tidak memiliki akses',
+      );
     }
 
-    const updatedLog = await updateLogById(id, req.body);
     res.json({
       message: 'Log konsumsi berhasil diperbarui',
       data: updatedLog[0],
     });
   } catch (error) {
     console.error('Error update log:', error);
-    next(new ApiError(500, 'Gagal memperbarui log konsumsi'));
+    next(
+      error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Gagal memperbarui log konsumsi'),
+    );
   }
 };
 
 export const deleteConsumptionLog = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const id = req.params.id as string;
-    const deletedLog = await deleteLogById(id);
+    const userId = req.user.id;
+
+    const deletedLog = await deleteLogById(id, userId);
 
     if (deletedLog.length === 0) {
-      throw new ApiError(404, 'Log tidak ditemukan');
+      throw new ApiError(
+        404,
+        'Log tidak ditemukan atau Anda tidak memiliki akses',
+      );
     }
 
     res.json({ message: 'Log konsumsi berhasil dihapus' });
   } catch (error) {
     console.error('Error delete log:', error);
-    next(new ApiError(500, 'Gagal menghapus log konsumsi'));
+    next(
+      error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Gagal menghapus log konsumsi'),
+    );
   }
 };

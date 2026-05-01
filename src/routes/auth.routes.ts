@@ -19,7 +19,15 @@ const router = Router();
 router.post('/register', validateBody(registerSchema), register);
 router.post('/login', validateBody(loginSchema), login);
 router.post('/logout', verifyToken, logout);
-router.post('/forgot-password', validateBody(forgetPasswordSchema), forgotPassword);
-router.post('/reset-password', validateBody(resetPasswordSchema), resetPassword);
+router.post(
+  '/forgot-password',
+  validateBody(forgetPasswordSchema),
+  forgotPassword,
+);
+router.post(
+  '/reset-password',
+  validateBody(resetPasswordSchema),
+  resetPassword,
+);
 
 export default router;

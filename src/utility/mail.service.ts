@@ -41,31 +41,41 @@ export const sendResetPasswordEmail = async (
   if (isDev) {
     // Kirim via Ethereal (tidak benar-benar terkirim, tapi bisa dipreview)
     const transporter = await getTransporter();
+
     const info = await transporter!.sendMail({
-      from: '"App Name" <no-reply@app.com>',
+      from: '"Kosongin" <no-reply@app.com>',
       to: toEmail,
       subject: 'Reset Password',
       html,
     });
 
     // Log URL preview emailnya di terminal
-    console.log('📧 Preview email:', nodemailer.getTestMessageUrl(info));
+    console.log('Log:\n📧 Preview email:', nodemailer.getTestMessageUrl(info));
   } else {
     // Kirim via Resend (production)
     const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: 'App Name <no-reply@domainmu.com>',
+    if (!process.env.RESEND_SENDER) {
+      return console.log(
+        'Log Error: bagian pengirim di konfigurasi resend kosong',
+      );
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_SENDER,
       to: toEmail,
       subject: 'Reset Password',
       html,
     });
+
+    if (error) {
+      console.error('❌ Gagal kirim email:', error);
+    } else {
+      console.log('✅ Email terkirim, ID:', data?.id); // ← bisa dicek di dashboard pakai ID ini
+    }
   }
 };
 
-export const sendReminderEmail = async (
-  toEmail: string,
-  fullName: string,
-) => {
+export const sendReminderEmail = async (toEmail: string, fullName: string) => {
   const html = `
     <h2>Hei, ${fullName}! 👋</h2>
     <p>Jangan lupa catat konsumsi kamu hari ini ya.</p>

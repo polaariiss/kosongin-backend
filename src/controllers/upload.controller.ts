@@ -9,8 +9,15 @@ export const getUploadSignature = async (
   next: NextFunction,
 ) => {
   try {
+    const { folderType } = req.body;
     const timestamp = Math.round(new Date().getTime() / 1000);
-    const folder = process.env.UPLOAD_CONSUMPTION_FOLDER;
+
+    let folder = '';
+    if (folderType === 'consumption') {
+      folder = process.env.UPLOAD_CONSUMPTION_FOLDER || '';
+    } else if (folderType === 'challenge') {
+      folder = process.env.UPLOAD_CHALLENGE_POSTER_FOLDER || '';
+    } 
 
     // Generate signature menggunakan Cloudinary API secret
     const signature = cloudinary.utils.api_sign_request(

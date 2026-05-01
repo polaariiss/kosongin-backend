@@ -7,7 +7,7 @@ const router = Router();
 // Semua endpoint challenge memerlukan login
 router.use(verifyToken);
 
-// User Endpoints
+// User Endpoints   
 router.get('/', challengeController.getActiveChallenges);
 router.get('/me', challengeController.getMyChallenges);
 router.get('/:id', challengeController.getChallengeById);

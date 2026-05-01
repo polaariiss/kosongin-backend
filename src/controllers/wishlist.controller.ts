@@ -14,6 +14,7 @@ export const createWishlist = async (
 
     res.status(201).json({
       status: 'success',
+      message: 'wishlist created!',
       data: wishlist,
     });
   } catch (error) {
@@ -32,6 +33,7 @@ export const getWishlists = async (
 
     res.status(200).json({
       status: 'success',
+      message: 'wishlist get!',
       data: wishlists,
     });
   } catch (error) {
@@ -65,6 +67,7 @@ export const updateWishlist = async (
 
     res.status(200).json({
       status: 'success',
+      message: 'wishlist updated',
       data: updatedWishlist,
     });
   } catch (error) {

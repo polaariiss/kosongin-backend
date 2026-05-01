@@ -17,7 +17,7 @@ import {
   getAllUsers,
   getUserById,
   deleteUser,
-} from '../controllers/users.controller';
+} from '../controllers/helper.controller';
 
 const router = Router();
 

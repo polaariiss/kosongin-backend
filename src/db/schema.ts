@@ -100,7 +100,7 @@ export const consumptionLogs = pgTable('consumption_logs', {
   itemCategory: consumptionCategoryEnum('item_category').notNull(),
   itemCategoryCustom: varchar('item_category_custom', { length: 100 }),
   imageUrl: text('image_url'),
-  amount: decimal('amount', { precision: 10, scale: 2 }),
+  amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   notes: text('notes'),
   consumedAt: timestamp('consumed_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

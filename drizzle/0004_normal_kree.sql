@@ -1,0 +1,1 @@
+ALTER TABLE "consumption_logs" ALTER COLUMN "amount" SET NOT NULL;

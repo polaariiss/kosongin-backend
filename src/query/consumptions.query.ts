@@ -22,18 +22,23 @@ export interface GetLogsOptions {
 }
 
 export const insertLog = async (data: CreateConsumptionData, userId: string) => {
+  const insertValues: any = {
+    userId: userId,
+    itemName: data.itemName,
+    itemCategory: data.itemCategory,
+    itemCategoryCustom: data.itemCategoryCustom,
+    imageUrl: data.imageUrl,
+    amount: data.amount ? data.amount.toString() : "0",
+    notes: data.notes,
+  };
+
+  if (data.consumedAt) {
+    insertValues.consumedAt = new Date(data.consumedAt);
+  }
+
   return await db
     .insert(consumptionLogs)
-    .values({
-      userId: userId,
-      itemName: data.itemName,
-      itemCategory: data.itemCategory,
-      itemCategoryCustom: data.itemCategoryCustom,
-      imageUrl: data.imageUrl,
-      amount: data.amount?.toString(),
-      notes: data.notes,
-      consumedAt: data.consumedAt ? new Date(data.consumedAt) : undefined,
-    })
+    .values(insertValues)
     .returning();
 };
 
@@ -69,6 +74,7 @@ export const findLogById = async (id: string) => {
 
 export const updateLogById = async (
   id: string,
+  userId: string,
   data: Partial<CreateConsumptionData>,
 ) => {
   const updateData: any = {};
@@ -85,13 +91,13 @@ export const updateLogById = async (
   return await db
     .update(consumptionLogs)
     .set(updateData)
-    .where(eq(consumptionLogs.id, id))
+    .where(and(eq(consumptionLogs.id, id), eq(consumptionLogs.userId, userId)))
     .returning();
 };
 
-export const deleteLogById = async (id: string) => {
+export const deleteLogById = async (id: string, userId: string) => {
   return await db
     .delete(consumptionLogs)
-    .where(eq(consumptionLogs.id, id))
+    .where(and(eq(consumptionLogs.id, id), eq(consumptionLogs.userId, userId)))
     .returning();
 };

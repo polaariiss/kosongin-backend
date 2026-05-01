@@ -7,7 +7,7 @@ info:
 tags:
   - name: Auth
   - name: Consumption
-  - name: Impulse Shield
+  - name: Wishlist
   - name: Challenge
   - name: Admin
   - name: Profile
@@ -36,17 +36,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
         '400':
-          description: Validasi gagal (misal password tidak cocok)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Validasi gagal
         '409':
           description: Email atau nickname sudah terdaftar
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   /auth/login:
     post:
@@ -66,18 +58,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '401':
-          description: Email/nickname atau password salah
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Kredensial salah
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Logout dari aplikasi
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout berhasil
+        '401':
+          description: Unauthorized
 
   /auth/forgot-password:
     post:
@@ -92,23 +87,13 @@ paths:
               $ref: '#/components/schemas/ForgotPasswordRequest'
       responses:
         '200':
-          description: Email reset password berhasil dikirim
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '404':
-          description: Email tidak ditemukan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Email reset password dikirim
 
   /auth/reset-password:
     post:
       tags:
         - Auth
-      summary: Reset password menggunakan token dari email
+      summary: Reset password menggunakan token
       requestBody:
         required: true
         content:
@@ -118,16 +103,6 @@ paths:
       responses:
         '200':
           description: Password berhasil direset
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageResponse'
-        '400':
-          description: Token tidak valid atau sudah kadaluarsa
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   # ============================================================
   # PROFILE
@@ -136,7 +111,7 @@ paths:
     get:
       tags:
         - Profile
-      summary: Ambil data profil pengguna yang sedang login
+      summary: Ambil data profil pengguna
       security:
         - bearerAuth: []
       responses:
@@ -147,22 +122,14 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                    example: true
                   data:
                     $ref: '#/components/schemas/User'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
-    put:
+  /profile/reminder-settings:
+    patch:
       tags:
         - Profile
-      summary: Update data profil pengguna
+      summary: Update pengaturan pengingat (reminder)
       security:
         - bearerAuth: []
       requestBody:
@@ -170,79 +137,46 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateProfileRequest'
+              type: object
+              properties:
+                opt_in:
+                  type: boolean
+                  example: true
+                reminder_time:
+                  type: string
+                  example: "19:00"
       responses:
         '200':
-          description: Profil berhasil diupdate
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/User'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Nickname sudah dipakai pengguna lain
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Settings berhasil diupdate
 
   # ============================================================
-  # CONSUMPTION
+  # CONSUMPTION LOGS
   # ============================================================
-  /consumption:
+  /consumption-logs:
     get:
       tags:
         - Consumption
-      summary: Ambil semua riwayat konsumsi milik pengguna
+      summary: Ambil semua riwayat konsumsi
       security:
         - bearerAuth: []
       parameters:
         - name: category
           in: query
-          required: false
-          description: Filter berdasarkan kategori
           schema:
             type: string
-            enum:
-              - makanan & minuman
-              - fashion
-              - elektronik
-              - perawatan diri
-              - hiburan
-        - name: startDate
+        - name: sortBy
           in: query
-          required: false
-          description: Filter dari tanggal (YYYY-MM-DD)
           schema:
             type: string
-            format: date
-        - name: endDate
+            enum: [consumedAt, amount, createdAt]
+        - name: order
           in: query
-          required: false
-          description: Filter sampai tanggal (YYYY-MM-DD)
           schema:
             type: string
-            format: date
+            enum: [asc, desc]
       responses:
         '200':
-          description: Berhasil mengambil data konsumsi
+          description: Berhasil mengambil data
           content:
             application/json:
               schema:
@@ -250,17 +184,10 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/ConsumptionLog'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
     post:
       tags:
@@ -276,31 +203,9 @@ paths:
               $ref: '#/components/schemas/AddConsumptionRequest'
       responses:
         '201':
-          description: Item konsumsi berhasil ditambahkan
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/ConsumptionLog'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil ditambahkan
 
-  /consumption/{id}:
+  /consumption-logs/{id}:
     put:
       tags:
         - Consumption
@@ -311,7 +216,6 @@ paths:
         - name: id
           in: path
           required: true
-          description: UUID item konsumsi
           schema:
             type: string
             format: uuid
@@ -323,35 +227,7 @@ paths:
               $ref: '#/components/schemas/AddConsumptionRequest'
       responses:
         '200':
-          description: Item konsumsi berhasil diupdate
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/ConsumptionLog'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan milik pengguna ini
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Item tidak ditemukan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil diupdate
 
     delete:
       tags:
@@ -363,42 +239,26 @@ paths:
         - name: id
           in: path
           required: true
-          description: UUID item konsumsi
           schema:
             type: string
             format: uuid
       responses:
         '204':
-          description: Item berhasil dihapus (no content)
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan milik pengguna ini
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Item tidak ditemukan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil dihapus
 
-  /consumption/insights:
+  # ============================================================
+  # DASHBOARD INSIGHT
+  # ============================================================
+  /dashboard/insight:
     get:
       tags:
         - Consumption
-      summary: Ambil ringkasan konsumsi (total minggu ini, kategori terbanyak, data harian)
+      summary: Ambil ringkasan insight konsumsi
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Berhasil mengambil insights konsumsi
+          description: Berhasil mengambil data
           content:
             application/json:
               schema:
@@ -406,37 +266,22 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   data:
                     $ref: '#/components/schemas/ConsumptionInsights'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
   # ============================================================
-  # IMPULSE SHIELD
+  # WISHLIST
   # ============================================================
-  /impulse-shield:
+  /wishlist:
     get:
       tags:
-        - Impulse Shield
-      summary: Ambil semua item wishlist milik pengguna
+        - Wishlist
+      summary: Ambil semua item wishlist
       security:
         - bearerAuth: []
-      parameters:
-        - name: status
-          in: query
-          required: false
-          description: Filter berdasarkan status item
-          schema:
-            type: string
-            enum: [waiting, bought, cancelled]
       responses:
         '200':
-          description: Berhasil mengambil daftar wishlist
+          description: Berhasil mengambil data
           content:
             application/json:
               schema:
@@ -444,22 +289,15 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/WishlistItem'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
 
     post:
       tags:
-        - Impulse Shield
-      summary: Tambah item ke wishlist (impulse shield)
+        - Wishlist
+      summary: Tambah item ke wishlist
       security:
         - bearerAuth: []
       requestBody:
@@ -467,72 +305,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddItemImpulseShieldRequest'
+              $ref: '#/components/schemas/AddWishlistRequest'
       responses:
         '201':
-          description: Item berhasil ditambahkan ke wishlist
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/WishlistItem'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil ditambahkan
 
-  /impulse-shield/stats:
-    get:
-      tags:
-        - Impulse Shield
-      summary: Ambil statistik impulse shield (item dibatalkan, uang dihemat, total item)
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Berhasil mengambil statistik
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/ImpulseShieldStats'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /impulse-shield/{id}/decide:
+  /wishlist/{id}:
     patch:
       tags:
-        - Impulse Shield
-      summary: Putuskan status item wishlist (beli atau batalkan)
+        - Wishlist
+      summary: Update status wishlist (beli/batalkan)
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: UUID item wishlist
           schema:
             type: string
             format: uuid
@@ -541,44 +329,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DecideImpulseRequest'
+              $ref: '#/components/schemas/UpdateWishlistStatusRequest'
       responses:
         '200':
-          description: Status item berhasil diupdate
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/WishlistItem'
-        '400':
-          description: Status tidak valid atau item sudah diputuskan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan milik pengguna ini
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Item tidak ditemukan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil diupdate
 
   # ============================================================
   # CHALLENGE
@@ -587,201 +341,83 @@ paths:
     get:
       tags:
         - Challenge
-      summary: Ambil semua challenge yang tersedia
+      summary: Ambil semua challenge aktif
       security:
         - bearerAuth: []
-      parameters:
-        - name: status
-          in: query
-          required: false
-          description: Filter berdasarkan status challenge
-          schema:
-            type: string
-            enum: [active, inactive]
-        - name: category
-          in: query
-          required: false
-          description: Filter berdasarkan kategori
-          schema:
-            type: string
       responses:
         '200':
-          description: Berhasil mengambil daftar challenge
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ChallengeItem'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil
 
   /challenge/me:
     get:
       tags:
         - Challenge
-      summary: Ambil daftar challenge yang diikuti pengguna beserta progressnya
+      summary: Ambil challenge yang diikuti
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Berhasil mengambil challenge yang diikuti
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/UserChallengeItem'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil
 
   /challenge/{id}:
     get:
       tags:
         - Challenge
-      summary: Ambil detail satu challenge
+      summary: Ambil detail challenge
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: UUID challenge
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: Berhasil mengambil detail challenge
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/ChallengeDetail'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Challenge tidak ditemukan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil
 
   /challenge/{id}/join:
     post:
       tags:
         - Challenge
-      summary: Ikut (join) sebuah challenge
+      summary: Ikut challenge
       security:
         - bearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
-          description: UUID challenge yang ingin diikuti
           schema:
             type: string
             format: uuid
       responses:
         '201':
-          description: Berhasil join challenge
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/UserChallengeItem'
-        '400':
-          description: Pengguna sudah join challenge ini
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Challenge tidak ditemukan atau sudah tidak aktif
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil join
 
   # ============================================================
-  # ADMIN
+  # UPLOAD
   # ============================================================
-  /admin/auth/login:
+  /upload/signature:
     post:
       tags:
-        - Admin
-        - Auth
-      summary: Login untuk admin
+        - Upload
+      summary: Dapatkan signature untuk upload Cloudinary
+      # security:
+      #   - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdminLoginRequest'
+              type: object
+              properties:
+                folderType:
+                  type: string
+                  enum: [consumption, challenge]
       responses:
         '200':
-          description: Login admin berhasil
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '401':
-          description: Kredensial salah
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /admin/stats:
-    get:
-      tags:
-        - Admin
-      summary: Ambil statistik keseluruhan aplikasi
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Berhasil mengambil statistik admin
+          description: Signature berhasil didapatkan
           content:
             application/json:
               schema:
@@ -789,333 +425,138 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   data:
-                    $ref: '#/components/schemas/AdminStats'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                    type: object
+                    properties:
+                      signature:
+                        type: string
+                      timestamp:
+                        type: integer
+                      apiKey:
+                        type: string
+                      cloudName:
+                        type: string
+                      folder:
+                        type: string
+
+  # ============================================================
+  # ADMIN
+  # ============================================================
+  /admin/stats:
+    get:
+      tags:
+        - Admin
+      summary: Statistik overview admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
 
   /admin/users:
     get:
       tags:
         - Admin
-      summary: Ambil daftar pengguna (dengan pencarian dan filter)
+      summary: Daftar pengguna (admin)
       security:
         - bearerAuth: []
-      parameters:
-        - name: search
-          in: query
-          required: false
-          description: Cari berdasarkan nama atau email
-          schema:
-            type: string
-        - name: status
-          in: query
-          required: false
-          description: Filter berdasarkan status akun
-          schema:
-            type: string
-            enum: [active, inactive]
-        - name: page
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 20
       responses:
         '200':
-          description: Berhasil mengambil daftar pengguna
+          description: Berhasil
+
+  /admin/users/export:
+    get:
+      tags:
+        - Admin
+      summary: Export data pengguna ke CSV
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: File CSV berhasil didownload
           content:
-            application/json:
+            text/csv:
               schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/AdminUserItem'
-                  meta:
-                    $ref: '#/components/schemas/PaginationMeta'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: string
+                format: binary
+
+  /admin/monitoring:
+    get:
+      tags:
+        - Admin
+      summary: Monitoring aktivitas pengguna
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil
 
   /admin/challenges:
     get:
       tags:
         - Admin
-        - Challenge
-      summary: Ambil semua challenge (termasuk yang inactive)
+      summary: Semua challenge (admin)
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Berhasil mengambil daftar challenge
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/ChallengeDetail'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+          description: Berhasil
     post:
       tags:
         - Admin
-        - Challenge
-      summary: Admin membuat challenge komunitas baru
+      summary: Buat challenge baru
       security:
         - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AdminAddChallengeRequest'
       responses:
         '201':
-          description: Challenge berhasil dibuat
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/ChallengeDetail'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil
 
   /admin/challenges/{id}:
     put:
       tags:
         - Admin
-        - Challenge
-      summary: Admin edit atau menonaktifkan challenge
+      summary: Update challenge
       security:
         - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: UUID challenge
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AdminUpdateChallengeRequest'
       responses:
         '200':
-          description: Challenge berhasil diupdate
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/ChallengeDetail'
-        '400':
-          description: Validasi gagal
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Challenge tidak ditemukan
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /admin/email-logs:
-    get:
+          description: Berhasil
+    delete:
       tags:
         - Admin
-      summary: Ambil log aktivitas email dan statistik harian
+      summary: Hapus challenge
       security:
         - bearerAuth: []
-      parameters:
-        - name: date
-          in: query
-          required: false
-          description: Filter log berdasarkan tanggal (YYYY-MM-DD)
-          schema:
-            type: string
-            format: date
       responses:
         '200':
-          description: Berhasil mengambil log email
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  data:
-                    $ref: '#/components/schemas/AdminEmailLogStats'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - bukan admin
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          description: Berhasil
 
 ################################################################################
 components:
   schemas:
-    # ----------------------------------------------------------
-    # SHARED / BASE
-    # ----------------------------------------------------------
     CustomTimeStamp:
       type: string
       pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
       example: '2024-05-20 14:30:00'
-      description: Timestamp dalam format YYYY-MM-DD HH:MM:SS
 
-    ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: 'Pesan error yang menjelaskan masalah'
-
-    MessageResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: 'Operasi berhasil'
-
-    PaginationMeta:
-      type: object
-      properties:
-        page:
-          type: integer
-          example: 1
-        limit:
-          type: integer
-          example: 20
-        total:
-          type: integer
-          example: 100
-
-    # ----------------------------------------------------------
-    # USER
-    # ----------------------------------------------------------
     User:
       type: object
       properties:
-        id:
+        fullName:
           type: string
-          format: uuid
-        nickname:
+          example: 'Ikmal'
+        nickName:
           type: string
-          example: 'budi123'
-        fullname:
-          type: string
-          minLength: 3
-          example: 'Budi Santoso'
+          example: 'ikmal123'
         email:
           type: string
-          format: email
-          example: 'budi@email.com'
-      required: [id, nickname, fullname, email]
+          example: 'ikmal@email.com'
+        reminderEnabled:
+          type: boolean
+          example: true
+        reminderTime:
+          type: string
+          example: "19:00"
 
     RegisterRequest:
       type: object
@@ -1123,47 +564,33 @@ components:
       properties:
         nickname:
           type: string
-          pattern: '^[a-zA-Z0-9_]+$'
-          minLength: 3
-          example: 'budi123'
+          example: 'ikmal'
         fullname:
           type: string
-          minLength: 3
-          example: 'Budi Santoso'
+          example: 'Ikmal'
         email:
           type: string
-          format: email
-          example: 'budi@email.com'
+          example: 'ikmal@email.com'
         password:
           type: string
-          minLength: 8
           example: 'password123'
         password_confirm:
           type: string
-          minLength: 8
           example: 'password123'
 
     LoginRequest:
       type: object
-      description: Login bisa menggunakan nickname atau email, salah satu wajib ada
+      required: [password]
       properties:
         nickname:
           type: string
-          example: 'budi123'
+          example: 'ikmal'
         email:
           type: string
-          format: email
-          example: 'budi@email.com'
+          example: 'ikmal@email.com'
         password:
           type: string
-          minLength: 8
           example: 'password123'
-      required: [password]
-      oneOf:
-        - required: [nickname]
-          title: Login dengan nickname
-        - required: [email]
-          title: Login dengan email
 
     AuthResponse:
       type: object
@@ -1176,7 +603,6 @@ components:
           properties:
             token:
               type: string
-              example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
             user:
               $ref: '#/components/schemas/User'
 
@@ -1186,8 +612,7 @@ components:
       properties:
         email:
           type: string
-          format: email
-          example: 'budi@email.com'
+          example: 'ikmal@email.com'
 
     ResetPasswordRequest:
       type: object
@@ -1195,478 +620,111 @@ components:
       properties:
         token:
           type: string
-          description: Token yang dikirim ke email pengguna
-          example: 'abc123resettoken'
         new_password:
           type: string
-          minLength: 8
-          example: 'newpassword123'
         new_password_confirm:
           type: string
-          minLength: 8
-          example: 'newpassword123'
 
-    UpdateProfileRequest:
-      type: object
-      properties:
-        nickname:
-          type: string
-          pattern: '^[a-zA-Z0-9_]+$'
-          minLength: 3
-          example: 'budi_baru'
-        fullname:
-          type: string
-          minLength: 3
-          example: 'Budi Santoso Baru'
-
-    # ----------------------------------------------------------
-    # CONSUMPTION
-    # ----------------------------------------------------------
     ConsumptionLog:
       type: object
       properties:
         id:
           type: string
-          format: uuid
         itemName:
           type: string
           example: 'Nasi Goreng'
         itemCategory:
           type: string
-          enum:
-            - makanan & minuman
-            - fashion
-            - elektronik
-            - perawatan diri
-            - hiburan
-          example: 'makanan & minuman'
-        reason:
+          enum: [makanan & minuman, fashion, elektronik, perawatan diri, hiburan, lainnya]
+        itemCategoryCustom:
           type: string
-          example: 'Lapar setelah kerja'
+          nullable: true
         amount:
           type: number
-          format: decimal
-          example: 25000
-        notes:
-          type: string
-          example: 'Beli di warung dekat kantor'
         consumedAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
-        createdAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
+          type: string
 
     AddConsumptionRequest:
       type: object
-      required: [itemName, itemCategory]
+      required: [itemName, itemCategory, amount]
       properties:
         itemName:
           type: string
           example: 'Nasi Goreng'
         itemCategory:
           type: string
-          enum:
-            - makanan & minuman
-            - fashion
-            - elektronik
-            - perawatan diri
-            - hiburan
-          example: 'makanan & minuman'
-        reason:
+          enum: [makanan & minuman, fashion, elektronik, perawatan diri, hiburan, lainnya]
+        itemCategoryCustom:
           type: string
-          example: 'Lapar setelah kerja'
         amount:
           type: number
-          format: decimal
-          example: 25000
         notes:
           type: string
-          example: 'Beli di warung dekat kantor'
         consumedAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
+          type: string
 
     ConsumptionInsights:
       type: object
       properties:
         totalThisWeek:
-          type: integer
-          description: Total item konsumsi yang tercatat minggu ini
-          example: 12
+          type: number
         topCategory:
           type: string
-          description: Kategori dengan konsumsi terbanyak minggu ini
-          example: 'makanan & minuman'
         dailyData:
           type: array
-          description: Data konsumsi harian dalam 7 hari terakhir
           items:
             type: object
-            properties:
-              date:
-                type: string
-                format: date
-                example: '2024-05-20'
-              count:
-                type: integer
-                example: 3
-              totalAmount:
-                type: number
-                example: 75000
 
-    # ----------------------------------------------------------
-    # IMPULSE SHIELD / WISHLIST
-    # ----------------------------------------------------------
     WishlistItem:
       type: object
       properties:
         id:
           type: string
-          format: uuid
         itemName:
           type: string
           example: 'Sepatu Nike'
         itemCategory:
           type: string
-          enum:
-            - makanan & minuman
-            - fashion
-            - elektronik
-            - perawatan diri
-            - hiburan
-          example: 'fashion'
-        estimatedPrice:
+          enum: [makanan & minuman, fashion, elektronik, perawatan diri, hiburan, lainnya]
+        itemCategoryCustom:
+          type: string
+          nullable: true
+        estimatePrice:
           type: number
-          format: decimal
-          example: 1200000
-        status:
-          type: string
-          enum: [waiting, bought, cancelled]
-          example: 'waiting'
-        reason:
-          type: string
-          example: 'Untuk olahraga'
-        duration:
+        waitingDays:
           type: integer
-          description: Durasi tunggu dalam hari sebelum memutuskan
-          example: 7
-        createdAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
+        whislistStatus:
+          type: string
+        wishlistDaysRemaining:
+          type: integer
 
-    AddItemImpulseShieldRequest:
+    AddWishlistRequest:
       type: object
-      required: [itemName, category, duration]
+      required: [itemName, itemCategory, estimatePrice, waitingDays]
       properties:
         itemName:
           type: string
           example: 'Sepatu Nike'
-        category:
+        itemCategory:
           type: string
-          enum:
-            - makanan & minuman
-            - fashion
-            - elektronik
-            - perawatan diri
-            - hiburan
-          example: 'fashion'
-        estimatedPrice:
+          enum: [makanan & minuman, fashion, elektronik, perawatan diri, hiburan, lainnya]
+        itemCategoryCustom:
+          type: string
+        estimatePrice:
           type: number
-          format: decimal
-          example: 1200000
-        duration:
+        waitingDays:
           type: integer
-          description: Durasi tunggu dalam hari (3, 7, 14, atau 30)
           enum: [3, 7, 14, 30]
-          example: 7
         reason:
           type: string
-          example: 'Untuk olahraga'
 
-    DecideImpulseRequest:
+    UpdateWishlistStatusRequest:
       type: object
-      required: [status]
+      required: [whislistStatus]
       properties:
-        status:
+        whislistStatus:
           type: string
-          enum: [bought, cancelled]
-          description: Keputusan akhir untuk item ini
-          example: 'cancelled'
-
-    ImpulseShieldStats:
-      type: object
-      properties:
-        totalItems:
-          type: integer
-          description: Total seluruh item yang pernah ditambahkan
-          example: 20
-        totalCancelled:
-          type: integer
-          description: Total item yang berhasil dibatalkan
-          example: 14
-        estimatedSaved:
-          type: number
-          description: Estimasi total uang yang berhasil dihemat (dari item cancelled)
-          example: 3500000
-
-    # ----------------------------------------------------------
-    # CHALLENGE
-    # ----------------------------------------------------------
-    ChallengeItem:
-      type: object
-      description: Data ringkas challenge untuk tampilan list
-      properties:
-        id:
-          type: string
-          format: uuid
-        title:
-          type: string
-          example: '30 Hari Tanpa Jajan'
-        description:
-          type: string
-          example: 'Tantangan untuk menahan diri tidak jajan selama 30 hari'
-        categoryTag:
-          type: string
-          example: 'makanan & minuman'
-        imageUrl:
-          type: string
-          example: 'https://storage.example.com/challenges/abc.jpg'
-        startDate:
-          $ref: '#/components/schemas/CustomTimeStamp'
-        endDate:
-          $ref: '#/components/schemas/CustomTimeStamp'
-        status:
-          type: string
-          enum: [active, inactive]
-          example: 'active'
-        participantCount:
-          type: integer
-          description: Jumlah peserta yang sudah join
-          example: 152
-
-    ChallengeDetail:
-      allOf:
-        - $ref: '#/components/schemas/ChallengeItem'
-        - type: object
-          properties:
-            fullDescription:
-              type: string
-              example: 'Deskripsi lengkap tentang challenge ini...'
-            rules:
-              type: string
-              example: '1. Tidak boleh membeli makanan di luar. 2. ...'
-            howTo:
-              type: string
-              example: 'Catat setiap hari apakah kamu berhasil tidak jajan'
-            durationDays:
-              type: integer
-              example: 30
-
-    UserChallengeItem:
-      type: object
-      description: Challenge yang sedang atau sudah diikuti pengguna
-      properties:
-        challengeId:
-          type: string
-          format: uuid
-        title:
-          type: string
-          example: '30 Hari Tanpa Jajan'
-        progress:
-          type: integer
-          description: Progress dalam persen (0-100)
-          example: 40
-        joinedAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
-
-    # ----------------------------------------------------------
-    # ADMIN REQUESTS
-    # ----------------------------------------------------------
-    AdminLoginRequest:
-      type: object
-      required: [email, password]
-      properties:
-        email:
-          type: string
-          format: email
-          example: 'admin@kosongin.com'
-        password:
-          type: string
-          minLength: 8
-          example: 'adminpassword123'
-
-    AdminAddChallengeRequest:
-      type: object
-      required:
-        [
-          title,
-          description,
-          fullDescription,
-          rules,
-          howTo,
-          category,
-          startDate,
-          endDate,
-        ]
-      properties:
-        title:
-          type: string
-          minLength: 1
-          example: '30 Hari Tanpa Jajan'
-        description:
-          type: string
-          minLength: 1
-          example: 'Tantangan untuk menahan diri tidak jajan selama 30 hari'
-        fullDescription:
-          type: string
-          minLength: 1
-          example: 'Deskripsi panjang tentang challenge ini...'
-        rules:
-          type: string
-          minLength: 1
-          example: '1. Tidak boleh membeli jajanan. 2. ...'
-        howTo:
-          type: string
-          minLength: 1
-          example: 'Catat setiap hari di aplikasi'
-        category:
-          type: string
-          minLength: 1
-          example: 'makanan & minuman'
-        imageUrl:
-          type: string
-          example: 'https://storage.example.com/challenges/abc.jpg'
-        durationDays:
-          type: integer
-          example: 30
-        startDate:
-          $ref: '#/components/schemas/CustomTimeStamp'
-        endDate:
-          $ref: '#/components/schemas/CustomTimeStamp'
-
-    AdminUpdateChallengeRequest:
-      type: object
-      description: Semua field opsional, hanya field yang dikirim yang akan diupdate
-      properties:
-        title:
-          type: string
-          minLength: 1
-        description:
-          type: string
-          minLength: 1
-        fullDescription:
-          type: string
-          minLength: 1
-        rules:
-          type: string
-          minLength: 1
-        howTo:
-          type: string
-          minLength: 1
-        category:
-          type: string
-          minLength: 1
-        imageUrl:
-          type: string
-        durationDays:
-          type: integer
-        startDate:
-          $ref: '#/components/schemas/CustomTimeStamp'
-        endDate:
-          $ref: '#/components/schemas/CustomTimeStamp'
-        status:
-          type: string
-          enum: [active, inactive]
-          description: Gunakan inactive untuk menonaktifkan challenge
-
-    # ----------------------------------------------------------
-    # ADMIN RESPONSES
-    # ----------------------------------------------------------
-    AdminStats:
-      type: object
-      properties:
-        totalUsers:
-          type: integer
-          description: Total pengguna terdaftar
-          example: 1500
-        totalConsumptionLogs:
-          type: integer
-          description: Total item konsumsi yang pernah dicatat
-          example: 8400
-        totalImpulseCancelled:
-          type: integer
-          description: Total item impulse shield yang dibatalkan
-          example: 320
-        totalActiveChallenges:
-          type: integer
-          description: Total challenge yang sedang aktif
-          example: 5
-
-    AdminUserItem:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        nickname:
-          type: string
-          example: 'budi123'
-        fullname:
-          type: string
-          example: 'Budi Santoso'
-        email:
-          type: string
-          format: email
-          example: 'budi@email.com'
-        status:
-          type: string
-          enum: [active, inactive]
-          example: 'active'
-        createdAt:
-          $ref: '#/components/schemas/CustomTimeStamp'
-
-    AdminEmailLogStats:
-      type: object
-      properties:
-        dailyUserActivity:
-          type: array
-          description: Log aktivitas pengguna per hari
-          items:
-            type: object
-            properties:
-              date:
-                type: string
-                format: date
-                example: '2024-05-20'
-              activeUsers:
-                type: integer
-                example: 120
-        dailyConsumptionCount:
-          type: array
-          description: Jumlah item konsumsi yang tercatat per hari
-          items:
-            type: object
-            properties:
-              date:
-                type: string
-                format: date
-                example: '2024-05-20'
-              count:
-                type: integer
-                example: 340
-        topChallenges:
-          type: array
-          description: Top 3 challenge dengan peserta terbanyak
-          maxItems: 3
-          items:
-            type: object
-            properties:
-              challengeId:
-                type: string
-                format: uuid
-              title:
-                type: string
-                example: '30 Hari Tanpa Jajan'
-              participantCount:
-                type: integer
-                example: 200
+          enum: [waiting, bought, cancelled]
 
   securitySchemes:
     bearerAuth:

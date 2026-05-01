@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import cloudinary from '../config/cloudinary';
 import { ApiError } from '../utility/api-error';
-import 'dotenv/config';
 
 export const getUploadSignature = async (
   req: Request,

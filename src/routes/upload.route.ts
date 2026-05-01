@@ -8,6 +8,6 @@ const router = Router();
 // router.use(verifyToken);
 
 // POST /api/upload/signature — untuk mendapatkan pre-signed URL (signature) dari Cloudinary
-router.post('/signature', validateBody(uploadSignatureSchema), getUploadSignature);
+router.post('/signature', verifyToken, validateBody(uploadSignatureSchema), getUploadSignature);
 
 export default router;

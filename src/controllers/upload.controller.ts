@@ -17,7 +17,11 @@ export const getUploadSignature = async (
       folder = process.env.UPLOAD_CONSUMPTION_FOLDER || '';
     } else if (folderType === 'challenge') {
       folder = process.env.UPLOAD_CHALLENGE_POSTER_FOLDER || '';
-    } 
+    }
+
+    if (!folder) {
+      return next(new ApiError(400, 'Folder untuk type ' + folderType + ' belum dikonfigurasi di server'));
+    }
 
     // Generate signature menggunakan Cloudinary API secret
     const signature = cloudinary.utils.api_sign_request(

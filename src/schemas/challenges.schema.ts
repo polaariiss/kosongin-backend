@@ -9,8 +9,18 @@ export const createChallengeSchema = z.object({
   category: z.string().min(1, 'Category wajib diisi'),
   imageUrl: z.string().url('URL poster tidak valid').optional(),
   durationDays: z.number().int().positive().optional(),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, 'Format tanggal harus YYYY-MM-DD HH:MM:SS'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, 'Format tanggal harus YYYY-MM-DD HH:MM:SS'),
+  startDate: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+      'Format tanggal harus YYYY-MM-DD HH:MM:SS',
+    ),
+  endDate: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+      'Format tanggal harus YYYY-MM-DD HH:MM:SS',
+    ),
 });
 
 export const updateChallengeSchema = createChallengeSchema.partial().extend({

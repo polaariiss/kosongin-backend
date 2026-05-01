@@ -61,9 +61,12 @@ export const updateConsumptionLog = async (
     const userId = req.user.id;
 
     const updatedLog = await updateLogById(id, userId, req.body);
-    
+
     if (updatedLog.length === 0) {
-      throw new ApiError(404, 'Log tidak ditemukan atau Anda tidak memiliki akses');
+      throw new ApiError(
+        404,
+        'Log tidak ditemukan atau Anda tidak memiliki akses',
+      );
     }
 
     res.json({
@@ -72,7 +75,11 @@ export const updateConsumptionLog = async (
     });
   } catch (error) {
     console.error('Error update log:', error);
-    next(error instanceof ApiError ? error : new ApiError(500, 'Gagal memperbarui log konsumsi'));
+    next(
+      error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Gagal memperbarui log konsumsi'),
+    );
   }
 };
 
@@ -88,12 +95,19 @@ export const deleteConsumptionLog = async (
     const deletedLog = await deleteLogById(id, userId);
 
     if (deletedLog.length === 0) {
-      throw new ApiError(404, 'Log tidak ditemukan atau Anda tidak memiliki akses');
+      throw new ApiError(
+        404,
+        'Log tidak ditemukan atau Anda tidak memiliki akses',
+      );
     }
 
     res.json({ message: 'Log konsumsi berhasil dihapus' });
   } catch (error) {
     console.error('Error delete log:', error);
-    next(error instanceof ApiError ? error : new ApiError(500, 'Gagal menghapus log konsumsi'));
+    next(
+      error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Gagal menghapus log konsumsi'),
+    );
   }
 };

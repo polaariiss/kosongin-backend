@@ -15,7 +15,7 @@ if (!process.env.DATABASE_URL) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   // Opsional: Batasi maksimal koneksi bersamaan (berguna untuk mencegah server over-load)
-  max: 20, 
+  max: 20,
 });
 
 // Mengecek apakah koneksi berhasil saat aplikasi pertama kali jalan

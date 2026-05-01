@@ -96,12 +96,18 @@ export const joinChallenge = async (
     }
 
     // Cek apakah sudah join
-    const alreadyJoined = await challengeQuery.findUserChallenge(userId, challengeId);
+    const alreadyJoined = await challengeQuery.findUserChallenge(
+      userId,
+      challengeId,
+    );
     if (alreadyJoined) {
       throw new ApiError(400, 'Anda sudah bergabung dalam challenge ini');
     }
 
-    const joined = await challengeQuery.insertUserChallenge(userId, challengeId);
+    const joined = await challengeQuery.insertUserChallenge(
+      userId,
+      challengeId,
+    );
     res.status(201).json({
       success: true,
       message: 'Berhasil bergabung dalam challenge',
@@ -121,7 +127,8 @@ export const getParticipants = async (
     const { id: challengeId } = req.params as { id: string };
     if (!challengeId) throw new ApiError(400, 'ID challenge wajib diisi');
 
-    const participants = await challengeQuery.findParticipantsByChallengeId(challengeId);
+    const participants =
+      await challengeQuery.findParticipantsByChallengeId(challengeId);
     res.status(200).json({
       success: true,
       message: 'Berhasil mengambil daftar peserta',
@@ -144,7 +151,7 @@ export const createChallenge = async (
       ...rest,
       categoryTag: category,
     };
-    
+
     const [newChallenge] = await challengeQuery.insertChallenge(dbData);
     res.status(201).json({
       success: true,
@@ -170,12 +177,12 @@ export const updateChallenge = async (
       ...rest,
     };
     if (category) dbData.categoryTag = category;
-    
+
     const [updatedChallenge] = await challengeQuery.updateChallenge(id, dbData);
     if (!updatedChallenge) {
       throw new ApiError(404, 'Challenge tidak ditemukan');
     }
-    
+
     res.status(200).json({
       success: true,
       message: 'Berhasil memperbarui data challenge',
@@ -199,7 +206,7 @@ export const deleteChallenge = async (
     if (!deletedChallenge) {
       throw new ApiError(404, 'Challenge tidak ditemukan');
     }
-    
+
     res.status(200).json({
       success: true,
       message: 'Berhasil menghapus challenge',

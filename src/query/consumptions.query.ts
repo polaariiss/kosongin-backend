@@ -1,8 +1,5 @@
 import { db } from '../config/db';
-import {
-  consumptionLogs,
-  ConsumptionCategory,
-} from '../db/schema';
+import { consumptionLogs, ConsumptionCategory } from '../db/schema';
 import { eq, and, desc, asc } from 'drizzle-orm';
 
 export interface CreateConsumptionData {
@@ -21,14 +18,17 @@ export interface GetLogsOptions {
   order?: 'asc' | 'desc';
 }
 
-export const insertLog = async (data: CreateConsumptionData, userId: string) => {
+export const insertLog = async (
+  data: CreateConsumptionData,
+  userId: string,
+) => {
   const insertValues: any = {
     userId: userId,
     itemName: data.itemName,
     itemCategory: data.itemCategory,
     itemCategoryCustom: data.itemCategoryCustom,
     imageUrl: data.imageUrl,
-    amount: data.amount ? data.amount.toString() : "0",
+    amount: data.amount ? data.amount.toString() : '0',
     notes: data.notes,
   };
 
@@ -36,10 +36,7 @@ export const insertLog = async (data: CreateConsumptionData, userId: string) => 
     insertValues.consumedAt = new Date(data.consumedAt);
   }
 
-  return await db
-    .insert(consumptionLogs)
-    .values(insertValues)
-    .returning();
+  return await db.insert(consumptionLogs).values(insertValues).returning();
 };
 
 export const findLogs = async (options: GetLogsOptions, userId: string) => {

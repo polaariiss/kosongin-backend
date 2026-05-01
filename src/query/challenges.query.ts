@@ -1,5 +1,10 @@
 import { db } from '../config/db';
-import { challenges, userChallenges, users, ChallengeStatus } from '../db/schema';
+import {
+  challenges,
+  userChallenges,
+  users,
+  ChallengeStatus,
+} from '../db/schema';
 import { eq, and, gt, sql, count } from 'drizzle-orm';
 
 export const findActiveChallenges = async () => {
@@ -10,8 +15,8 @@ export const findActiveChallenges = async () => {
     .where(
       and(
         eq(challenges.status, ChallengeStatus.ACTIVE),
-        gt(challenges.endDate, now)
-      )
+        gt(challenges.endDate, now),
+      ),
     );
 
   // Add participant count for each challenge
@@ -25,16 +30,14 @@ export const findActiveChallenges = async () => {
         ...c,
         participantCount: countResult ? Number(countResult.value) : 0,
       };
-    })
+    }),
   );
 
   return challengesWithCount;
 };
 
 export const findAllChallenges = async () => {
-  const result = await db
-    .select()
-    .from(challenges);
+  const result = await db.select().from(challenges);
 
   const challengesWithCount = await Promise.all(
     result.map(async (c) => {
@@ -46,7 +49,7 @@ export const findAllChallenges = async () => {
         ...c,
         participantCount: countResult ? Number(countResult.value) : 0,
       };
-    })
+    }),
   );
 
   return challengesWithCount;
@@ -57,7 +60,7 @@ export const findChallengeById = async (id: string) => {
     .select()
     .from(challenges)
     .where(eq(challenges.id, id));
-  
+
   if (!challenge) return null;
 
   const [participantCount] = await db
@@ -99,7 +102,7 @@ export const updateChallenge = async (id: string, data: any) => {
   const updateData = { ...data };
   if (data.startDate) updateData.startDate = new Date(data.startDate);
   if (data.endDate) updateData.endDate = new Date(data.endDate);
-  
+
   return await db
     .update(challenges)
     .set({
@@ -111,13 +114,13 @@ export const updateChallenge = async (id: string, data: any) => {
 };
 
 export const deleteChallengeById = async (id: string) => {
-  return await db
-    .delete(challenges)
-    .where(eq(challenges.id, id))
-    .returning();
+  return await db.delete(challenges).where(eq(challenges.id, id)).returning();
 };
 
-export const insertUserChallenge = async (userId: string, challengeId: string) => {
+export const insertUserChallenge = async (
+  userId: string,
+  challengeId: string,
+) => {
   return await db
     .insert(userChallenges)
     .values({
@@ -140,15 +143,18 @@ export const findUserChallengesByUserId = async (userId: string) => {
     .where(eq(userChallenges.userId, userId));
 };
 
-export const findUserChallenge = async (userId: string, challengeId: string) => {
+export const findUserChallenge = async (
+  userId: string,
+  challengeId: string,
+) => {
   const [result] = await db
     .select()
     .from(userChallenges)
     .where(
       and(
         eq(userChallenges.userId, userId),
-        eq(userChallenges.challengeId, challengeId)
-      )
+        eq(userChallenges.challengeId, challengeId),
+      ),
     );
   return result;
 };

@@ -2,7 +2,11 @@ import cron from 'node-cron';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import { users, emailLogs, wishlists, ImpulseStatus } from '../db/schema';
-import { sendReminderEmail, sendResetPasswordEmail, sendImpulseDoneEmail } from './mail.service';
+import {
+  sendReminderEmail,
+  sendResetPasswordEmail,
+  sendImpulseDoneEmail,
+} from './mail.service';
 import { EmailType, EmailStatus } from '../db/schema';
 
 const db = drizzle(process.env.DATABASE_URL!);
@@ -40,7 +44,11 @@ export const startImpulseCron = () => {
 
       if (diffDays >= wishlist.waitingDays) {
         try {
-          await sendImpulseDoneEmail(user.email, user.fullName, wishlist.itemName);
+          await sendImpulseDoneEmail(
+            user.email,
+            user.fullName,
+            wishlist.itemName,
+          );
 
           await db
             .update(wishlists)
@@ -52,10 +60,15 @@ export const startImpulseCron = () => {
             emailType: EmailType.IMPULSE_DONE,
             status: EmailStatus.DELIVERED,
           });
-          
-          console.log(`✅ Sent impulse notification for item: ${wishlist.itemName} to ${user.email}`);
+
+          console.log(
+            `✅ Sent impulse notification for item: ${wishlist.itemName} to ${user.email}`,
+          );
         } catch (error) {
-          console.error(`❌ Failed to send impulse notification for item: ${wishlist.itemName}`, error);
+          console.error(
+            `❌ Failed to send impulse notification for item: ${wishlist.itemName}`,
+            error,
+          );
           await db.insert(emailLogs).values({
             userId: user.id,
             emailType: EmailType.IMPULSE_DONE,
@@ -104,7 +117,7 @@ export const startReminderCron = () => {
             // Cek apakah hari ini sudah dikirim (untuk menghindari duplikasi)
             const startOfDay = new Date();
             startOfDay.setHours(0, 0, 0, 0);
-            
+
             const [alreadySent] = await db
               .select()
               .from(emailLogs)
@@ -126,7 +139,10 @@ export const startReminderCron = () => {
               status: EmailStatus.DELIVERED,
             });
           } catch (error) {
-            console.error(`❌ Failed to send reminder to ${user.email}:`, error);
+            console.error(
+              `❌ Failed to send reminder to ${user.email}:`,
+              error,
+            );
             await db.insert(emailLogs).values({
               userId: user.id,
               emailType: EmailType.REMINDER,

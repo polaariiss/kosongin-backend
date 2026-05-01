@@ -23,7 +23,7 @@ export const validateBody = (schema: ZodObject) => {
           })),
         });
       }
-      next(error); 
+      next(error);
     }
   };
 };

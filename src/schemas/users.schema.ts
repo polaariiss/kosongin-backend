@@ -17,18 +17,14 @@ export const createUserSchema = z.object({
     .email('Format email tidak valid')
     .max(255, 'Email maksimal 255 karakter'),
 
-  password: z
-    .string()
-    .min(8, 'Password minimal 8 karakter'),
+  password: z.string().min(8, 'Password minimal 8 karakter'),
 
   reminderTime: z
     .string()
     .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format waktu harus HH:mm')
     .optional(),
 
-  reminderEnabled: z
-    .boolean()
-    .optional(),
+  reminderEnabled: z.boolean().optional(),
 });
 
 // Schema untuk UPDATE user (semua field optional)
@@ -51,23 +47,16 @@ export const updateUserSchema = z.object({
     .max(255, 'Email maksimal 255 karakter')
     .optional(),
 
-  password: z
-    .string()
-    .min(8, 'Password minimal 8 karakter')
-    .optional(),
+  password: z.string().min(8, 'Password minimal 8 karakter').optional(),
 
   reminderTime: z
     .string()
     .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format waktu harus HH:mm')
     .optional(),
 
-  reminderEnabled: z
-    .boolean()
-    .optional(),
+  reminderEnabled: z.boolean().optional(),
 
-  isActive: z
-    .boolean()
-    .optional(),
+  isActive: z.boolean().optional(),
 });
 
 // Schema untuk validasi ID parameter

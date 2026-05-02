@@ -50,7 +50,6 @@ Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **___** s
     7 ├── routes/             # Definisi endpoint API dan pemetaan ke controller
     8 ├── schemas/            # Definisikan skema Zod untuk validasi data
     9 ├── utility/            # Fungsi bantuan (Email, Cron jobs, Custom Error)
-   10 └── validations/        # Logika validasi tambahan
 
   Fungsi File-File Penting:
    - src/index.ts: Entry point aplikasi. Menjalankan server, menghubungkan rute, dan memulai Cron Jobs.

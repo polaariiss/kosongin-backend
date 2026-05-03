@@ -27,7 +27,11 @@ export const getProfile = async (
     if (!user) {
       throw new ApiError(404, 'user tidak ditemukan');
     }
-    return res.status(200).json({ data: user });
+    return res.status(200).json({
+      success: true,
+      message: 'Berhasil mengambil profil',
+      data: user,
+    });
   } catch (error) {
     next(error);
   }
@@ -50,9 +54,10 @@ export const updateReminderSettigns = async (
       })
       .where(eq(users.id, req.user.id));
 
-    return res
-      .status(200)
-      .json({ message: 'Reminder settings berhasil diupdate' });
+    return res.status(200).json({
+      success: true,
+      message: 'Reminder settings berhasil diupdate',
+    });
   } catch (error) {
     next(error);
   }

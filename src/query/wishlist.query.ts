@@ -1,10 +1,10 @@
-import { db } from '../config/db';
+import { db } from '../config/db.js';
 import {
   wishlists,
   ImpulseStatus,
   ConsumptionCategory,
   DaysDurationWait,
-} from '../db/schema';
+} from '../db/schema.js';
 import { eq, desc } from 'drizzle-orm';
 
 export interface CreateWishlistData {

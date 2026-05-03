@@ -1,10 +1,10 @@
-import { db } from '../config/db';
+import { db } from '../config/db.js';
 import {
   challenges,
   userChallenges,
   users,
   ChallengeStatus,
-} from '../db/schema';
+} from '../db/schema.js';
 import { eq, and, gt, sql, count } from 'drizzle-orm';
 
 export const findActiveChallenges = async () => {

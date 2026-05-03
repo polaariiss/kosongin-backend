@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ConsumptionCategory } from '../db/schema';
+import { ConsumptionCategory } from '../db/schema.js';
 
 export const ConsumptionCategorySchema = z.nativeEnum(ConsumptionCategory);
 

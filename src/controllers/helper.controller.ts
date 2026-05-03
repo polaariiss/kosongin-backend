@@ -1,9 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
-import { db } from '../config/db';
-import { admin, users } from '../db/schema';
-import { ApiError } from '../utility/api-error';
-import { registerAdminSchema } from '../schemas/helper.schema';
+import { db } from '../config/db.js';
+import { admin, users } from '../db/schema.js';
+import { ApiError } from '../utility/api-error.js';
+import { registerAdminSchema } from '../schemas/helper.schema.js';
 import { eq, or } from 'drizzle-orm';
 import 'dotenv/config';
 

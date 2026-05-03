@@ -1,19 +1,19 @@
 import { Router } from 'express';
-import { verifyToken } from '../middlewares/auth.middleware';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 import {
   register,
   login,
   logout,
   forgotPassword,
   resetPassword,
-} from '../controllers/auth.controller';
-import { validateBody } from '../middlewares/validation.middleware';
+} from '../controllers/auth.controller.js';
+import { validateBody } from '../middlewares/validation.middleware.js';
 import {
   registerSchema,
   loginSchema,
   forgetPasswordSchema,
   resetPasswordSchema,
-} from '../schemas/auth.schema';
+} from '../schemas/auth.schema.js';
 
 const router = Router();
 router.post('/register', validateBody(registerSchema), register);

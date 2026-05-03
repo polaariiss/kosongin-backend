@@ -1,7 +1,7 @@
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../middlewares/auth.middleware';
-import * as challengeQuery from '../query/challenges.query';
-import { ApiError } from '../utility/api-error';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import * as challengeQuery from '../query/challenges.query.js';
+import { ApiError } from '../utility/api-error.js';
 
 export const getActiveChallenges = async (
   req: AuthRequest,

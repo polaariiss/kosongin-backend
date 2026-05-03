@@ -1,7 +1,7 @@
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../middlewares/auth.middleware';
-import * as wishlistQuery from '../query/wishlist.query';
-import { ApiError } from '../utility/api-error';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import * as wishlistQuery from '../query/wishlist.query.js';
+import { ApiError } from '../utility/api-error.js';
 
 export const createWishlist = async (
   req: AuthRequest,

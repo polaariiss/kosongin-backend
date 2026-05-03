@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getUploadSignature } from '../controllers/upload.controller';
-import { validateBody } from '../middlewares/validation.middleware';
-import { uploadSignatureSchema } from '../schemas/upload.schema';
-import { verifyToken } from '../middlewares/auth.middleware';
+import { getUploadSignature } from '../controllers/upload.controller.js';
+import { validateBody } from '../middlewares/validation.middleware.js';
+import { uploadSignatureSchema } from '../schemas/upload.schema.js';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 

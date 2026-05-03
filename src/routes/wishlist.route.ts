@@ -3,17 +3,17 @@ import {
   createWishlist,
   getWishlists,
   updateWishlist,
-} from '../controllers/wishlist.controller';
+} from '../controllers/wishlist.controller.js';
 import {
   validateBody,
   validateParams,
-} from '../middlewares/validation.middleware';
+} from '../middlewares/validation.middleware.js';
 import {
   createWishlistSchema,
   updateWishlistSchema,
   wishlistIdSchema,
-} from '../schemas/wishlist.schema';
-import { verifyToken } from '../middlewares/auth.middleware';
+} from '../schemas/wishlist.schema.js';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 

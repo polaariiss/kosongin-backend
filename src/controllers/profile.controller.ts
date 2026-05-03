@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from 'express';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import type { AuthRequest } from '../middlewares/auth.middleware';
-import { users } from '../db/schema';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import { users } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
-import { db } from '../config/db';
-import { reminderSettingsSchema } from '../schemas/profile.schema';
-import { ApiError } from '../utility/api-error';
+import { db } from '../config/db.js';
+import { reminderSettingsSchema } from '../schemas/profile.schema.js';
+import { ApiError } from '../utility/api-error.js';
 
 // GET /profile  | id user sudah diperoleh di dalam JWT (req.user.id)
 export const getProfile = async (

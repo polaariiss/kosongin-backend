@@ -1,6 +1,6 @@
-import { db } from '../config/db';
+import { db } from '../config/db.js';
 import { and, count, desc, eq, gte, sql } from 'drizzle-orm';
-import * as tables from '../db/schema';
+import * as tables from '../db/schema.js';
 
 export const getUniqueConsumptionDates = async (userId: string) => {
   return await db

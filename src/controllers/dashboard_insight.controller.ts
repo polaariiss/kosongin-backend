@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Response, NextFunction } from 'express';
-import type { AuthRequest } from '../middlewares/auth.middleware';
-import * as query from '../query/dashboard_insight.query';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import * as query from '../query/dashboard_insight.query.js';
 import NodeCache from 'node-cache';
 
 // Inisialisasi Cache

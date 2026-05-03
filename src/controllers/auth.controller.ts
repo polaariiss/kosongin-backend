@@ -10,12 +10,12 @@ import {
   userActivityLogs,
   ActivityType,
   admin,
-} from '../db/schema';
-import { sendResetPasswordEmail } from '../utility/mail.service';
-import { resetPasswordSchema } from '../schemas/auth.schema';
-import type { AuthRequest } from '../middlewares/auth.middleware';
-import { db } from '../config/db';
-import { ApiError } from '../utility/api-error';
+} from '../db/schema.js';
+import { sendResetPasswordEmail } from '../utility/mail.service.js';
+import { resetPasswordSchema } from '../schemas/auth.schema.js';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import { db } from '../config/db.js';
+import { ApiError } from '../utility/api-error.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
 

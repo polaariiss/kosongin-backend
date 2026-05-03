@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import * as query from '../query/admin_dashboard.query';
+import * as query from '../query/admin_dashboard.query.js';
 import * as fastcsv from 'fast-csv';
 
 export const getOverviewStats = async (

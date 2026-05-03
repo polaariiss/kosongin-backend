@@ -5,11 +5,11 @@ import {
   findLogById,
   updateLogById,
   deleteLogById,
-} from '../query/consumptions.query';
-import { db } from '../config/db';
-import type { AuthRequest } from '../middlewares/auth.middleware';
-import { userActivityLogs, ActivityType } from '../db/schema';
-import { ApiError } from '../utility/api-error';
+} from '../query/consumptions.query.js';
+import { db } from '../config/db.js';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
+import { userActivityLogs, ActivityType } from '../db/schema.js';
+import { ApiError } from '../utility/api-error.js';
 
 export const createConsumptionLog = async (
   req: AuthRequest,

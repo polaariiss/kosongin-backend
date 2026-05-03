@@ -3,7 +3,7 @@ import {
   ConsumptionCategory,
   DaysDurationWait,
   ImpulseStatus,
-} from '../db/schema';
+} from '../db/schema.js';
 
 export const wishlistCategorySchema = z.nativeEnum(ConsumptionCategory);
 export const wishlistStatusSchema = z.nativeEnum(ImpulseStatus);

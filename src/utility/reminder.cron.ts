@@ -1,12 +1,12 @@
 import cron from 'node-cron';
 import { eq, and, gte } from 'drizzle-orm';
-import { users, emailLogs, wishlists, ImpulseStatus } from '../db/schema';
+import { users, emailLogs, wishlists, ImpulseStatus } from '../db/schema.js';
 import {
   sendReminderEmail,
   sendImpulseDoneEmail,
-} from './mail.service';
-import { EmailType, EmailStatus } from '../db/schema';
-import { db } from '../config/db';
+} from './mail.service.js';
+import { EmailType, EmailStatus } from '../db/schema.js';
+import { db } from '../config/db.js';
 
 export const startImpulseCron = () => {
   cron.schedule('0 0 * * *', async () => {

@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
-import { users, admin, tokenBlacklists } from '../db/schema';
-import { db } from '../config/db';
+import { users, admin, tokenBlacklists } from '../db/schema.js';
+import { db } from '../config/db.js';
 
 import type { Request, Response, NextFunction } from 'express';
-import { ApiError } from '../utility/api-error';
+import { ApiError } from '../utility/api-error.js';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';

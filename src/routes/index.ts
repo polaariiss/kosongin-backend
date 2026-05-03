@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import consumptionRoute from './consumptions.route';
-import uploadRoute from './upload.route';
-import authRoute from './auth.routes';
-import profileRoute from './profile.route';
-import wishlistRoute from './wishlist.route';
-import dashboardInsightRoute from './dashboard_insight.routes';
-import challengeRoute from './challenges.route';
-import adminRoute from './admin.route';
-import helperRoute from './helper.route';
+import consumptionRoute from './consumptions.route.js';
+import uploadRoute from './upload.route.js';
+import authRoute from './auth.routes.js';
+import profileRoute from './profile.route.js';
+import wishlistRoute from './wishlist.route.js';
+import dashboardInsightRoute from './dashboard_insight.routes.js';
+import challengeRoute from './challenges.route.js';
+import adminRoute from './admin.route.js';
+import helperRoute from './helper.route.js';
 
 const router = Router();
 

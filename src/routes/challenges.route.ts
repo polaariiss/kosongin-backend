@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import * as challengeController from '../controllers/challenges.controller';
-import { verifyToken } from '../middlewares/auth.middleware';
+import * as challengeController from '../controllers/challenges.controller.js';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 

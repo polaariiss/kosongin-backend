@@ -4,19 +4,19 @@ import {
   getConsumptionLogs,
   updateConsumptionLog,
   deleteConsumptionLog,
-} from '../controllers/consumptions.controller';
+} from '../controllers/consumptions.controller.js';
 import {
   validateBody,
   validateParams,
   validateQuery,
-} from '../middlewares/validation.middleware';
+} from '../middlewares/validation.middleware.js';
 import {
   createLogSchema,
   updateLogSchema,
   logIdSchema,
   getLogsQuerySchema,
-} from '../schemas/consumptions.schema';
-import { verifyToken } from '../middlewares/auth.middleware';
+} from '../schemas/consumptions.schema.js';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 

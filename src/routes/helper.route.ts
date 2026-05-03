@@ -1,23 +1,23 @@
 import { Router } from 'express';
-import { createAdminAccount } from '../controllers/helper.controller';
+import { createAdminAccount } from '../controllers/helper.controller.js';
 import {
   validateParams,
   validateBody,
-} from '../middlewares/validation.middleware';
+} from '../middlewares/validation.middleware.js';
 
-import { registerAdminSchema } from '../schemas/helper.schema';
+import { registerAdminSchema } from '../schemas/helper.schema.js';
 
 import {
   createUserSchema,
   updateUserSchema,
   userIdSchema,
-} from '../schemas/users.schema';
+} from '../schemas/users.schema.js';
 import {
   createUser,
   getAllUsers,
   getUserById,
   deleteUser,
-} from '../controllers/helper.controller';
+} from '../controllers/helper.controller.js';
 
 const router = Router();
 

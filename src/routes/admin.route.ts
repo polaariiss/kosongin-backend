@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { verifyToken, authorizeRole } from '../middlewares/auth.middleware';
-import * as dashboardController from '../controllers/admin_dashboard.controller';
-import * as challengeController from '../controllers/challenges.controller';
-import { validateBody } from '../middlewares/validation.middleware';
+import { verifyToken, authorizeRole } from '../middlewares/auth.middleware.js';
+import * as dashboardController from '../controllers/admin_dashboard.controller.js';
+import * as challengeController from '../controllers/challenges.controller.js';
+import { validateBody } from '../middlewares/validation.middleware.js';
 import {
   createChallengeSchema,
   updateChallengeSchema,
-} from '../schemas/challenges.schema';
+} from '../schemas/challenges.schema.js';
 
 const router = Router();
 

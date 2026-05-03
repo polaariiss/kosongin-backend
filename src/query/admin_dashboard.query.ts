@@ -7,8 +7,8 @@ import {
   userChallenges,
   users,
   wishlists,
-} from '../db/schema';
-import { db } from '../config/db';
+} from '../db/schema.js';
+import { db } from '../config/db.js';
 import { and, asc, count, desc, eq, ilike, or, sql, gte } from 'drizzle-orm';
 
 export const getTotalUsers = () => {

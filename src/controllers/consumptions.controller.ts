@@ -25,6 +25,7 @@ export const createConsumptionLog = async (
     });
 
     res.status(201).json({
+      success: true,
       message: 'Log konsumsi berhasil dicatat',
       data: newLog[0],
     });
@@ -44,7 +45,11 @@ export const getConsumptionLogs = async (
     const userId = req.user.id;
 
     const logs = await findLogs({ category, sortBy, order }, userId);
-    res.json(logs);
+    res.json({
+      success: true,
+      message: 'Berhasil mengambil log konsumsi',
+      data: logs,
+    });
   } catch (error) {
     console.error('Error fetch logs:', error);
     next(new ApiError(500, 'Gagal mengambil log konsumsi'));
@@ -70,6 +75,7 @@ export const updateConsumptionLog = async (
     }
 
     res.json({
+      success: true,
       message: 'Log konsumsi berhasil diperbarui',
       data: updatedLog[0],
     });
@@ -101,7 +107,10 @@ export const deleteConsumptionLog = async (
       );
     }
 
-    res.json({ message: 'Log konsumsi berhasil dihapus' });
+    res.status(200).json({
+      success: true,
+      message: 'Log konsumsi berhasil dihapus',
+    });
   } catch (error) {
     console.error('Error delete log:', error);
     next(

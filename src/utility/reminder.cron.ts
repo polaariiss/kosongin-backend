@@ -1,19 +1,16 @@
 import cron from 'node-cron';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { eq, and, gte } from 'drizzle-orm';
 import { users, emailLogs, wishlists, ImpulseStatus } from '../db/schema';
 import {
   sendReminderEmail,
-  sendResetPasswordEmail,
   sendImpulseDoneEmail,
 } from './mail.service';
 import { EmailType, EmailStatus } from '../db/schema';
-
-const db = drizzle(process.env.DATABASE_URL!);
+import { db } from '../config/db';
 
 export const startImpulseCron = () => {
   cron.schedule('0 0 * * *', async () => {
-    console.log('🕒 Running Impulse Shield Cron Job...');
+    console.log('Running Impulse Shield Cron Job...');
     const pendingWishlists = await db
       .select({
         wishlist: wishlists,
@@ -62,11 +59,11 @@ export const startImpulseCron = () => {
           });
 
           console.log(
-            `✅ Sent impulse notification for item: ${wishlist.itemName} to ${user.email}`,
+            `Sent impulse notification for item: ${wishlist.itemName} to ${user.email}`,
           );
         } catch (error) {
           console.error(
-            `❌ Failed to send impulse notification for item: ${wishlist.itemName}`,
+            `Failed to send impulse notification for item: ${wishlist.itemName}`,
             error,
           );
           await db.insert(emailLogs).values({

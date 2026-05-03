@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/polaariiss/kosongin-backend#readme",
   "dependencies": {
+    "@scalar/express-api-reference": "^0.9.13",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",

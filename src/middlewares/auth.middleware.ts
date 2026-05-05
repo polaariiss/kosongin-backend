@@ -5,6 +5,7 @@ import { db } from '../config/db.js';
 import type { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utility/api-error.js';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
+import { authCache } from '../utility/cache.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
 
@@ -24,8 +25,16 @@ export const verifyToken = async (
   }
 
   const token = authHeader.split(' ')[1] as string;
+
+  // 1. Cek Cache terlebih dahulu
+  const cachedUser = authCache.get<any>(`token:${token}`);
+  if (cachedUser) {
+    req.user = cachedUser;
+    return next();
+  }
+
   try {
-    // cek token blacklist
+    // 2. Cek DB (Blacklist & User Info) jika tidak ada di cache
     const [blacklist] = await db
       .select()
       .from(tokenBlacklists)
@@ -49,20 +58,26 @@ export const verifyToken = async (
       .where(eq(users.id, decoded.id));
     if (userData) {
       req.user.role = 'user';
-      return next();
+    } else {
+      const [adminData] = await db
+        .select()
+        .from(admin)
+        .where(eq(admin.id, decoded.id));
+      if (adminData) {
+        req.user.role = 'admin';
+      } else {
+        throw new ApiError(401, 'User tidak ditemukan atau token invalid');
+      }
     }
 
-    const [adminData] = await db
-      .select()
-      .from(admin)
-      .where(eq(admin.id, decoded.id));
-    if (adminData) {
-      req.user.role = 'admin';
-      return next();
+    // 3. Simpan ke Cache dengan TTL sesuai sisa masa aktif token
+    const now = Math.floor(Date.now() / 1000);
+    const remainingSeconds = decoded.exp ? decoded.exp - now : 86400;
+    if (remainingSeconds > 0) {
+      authCache.set(`token:${token}`, req.user, remainingSeconds);
     }
 
-    // kalau tidak ada di tabel users dan admin
-    throw new ApiError(401, 'User tidak ditemukan atau token invalid');
+    return next();
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
       return next(new ApiError(401, 'Token sudah kadaluarsa'));

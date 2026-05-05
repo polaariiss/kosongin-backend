@@ -16,6 +16,7 @@ import { resetPasswordSchema } from '../schemas/auth.schema.js';
 import type { AuthRequest } from '../middlewares/auth.middleware.js';
 import { db } from '../config/db.js';
 import { ApiError } from '../utility/api-error.js';
+import { authCache } from '../utility/cache.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
 
@@ -132,7 +133,20 @@ export const login = async (
       role: role,
     };
 
+    // Cek apakah ada token aktif di cache
+    const cachedToken = authCache.get<string>(`session:${userChecked.id}`);
+    if (cachedToken) {
+      return res.status(200).json({
+        success: true,
+        message: 'Login berhasil',
+        data: { token: cachedToken },
+      });
+    }
+
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+
+    // Simpan token ke cache session
+    authCache.set(`session:${userChecked.id}`, token);
 
     // Log aktivitas hanya untuk user biasa
     if (role === 'user') {
@@ -166,6 +180,10 @@ export const logout = async (
 
     // insert token ke db
     await db.insert(tokenBlacklists).values({ token, expiredAt });
+
+    // Hapus dari cache
+    authCache.del(`session:${decoded.id}`);
+    authCache.del(`token:${token}`);
 
     return res.status(200).json({
       success: true,

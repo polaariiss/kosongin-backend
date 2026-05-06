@@ -3,6 +3,7 @@ import { verifyToken } from '../middlewares/auth.middleware.js';
 import {
   register,
   login,
+  refresh,
   logout,
   forgotPassword,
   resetPassword,
@@ -18,6 +19,7 @@ import {
 const router = Router();
 router.post('/register', validateBody(registerSchema), register);
 router.post('/login', validateBody(loginSchema), login);
+router.post('/refresh', refresh);
 router.post('/logout', verifyToken, logout);
 router.post(
   '/forgot-password',

@@ -48,10 +48,16 @@ export const findLogs = async (options: GetLogsOptions, userId: string) => {
     conditions = and(conditions, eq(consumptionLogs.itemCategory, category))!;
   }
 
+  // Validasi sortBy agar tidak error saat akses object consumptionLogs
+  const validSortFields = ['consumedAt', 'amount', 'createdAt'];
+  const actualSortBy = validSortFields.includes(sortBy)
+    ? (sortBy as keyof typeof consumptionLogs)
+    : 'consumedAt';
+
   const orderBy =
     order === 'desc'
-      ? desc(consumptionLogs[sortBy])
-      : asc(consumptionLogs[sortBy]);
+      ? desc(consumptionLogs[actualSortBy])
+      : asc(consumptionLogs[actualSortBy]);
 
   return await db
     .select()

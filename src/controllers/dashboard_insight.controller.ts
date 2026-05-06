@@ -117,6 +117,7 @@ const allConsumptionCategory = [
   'makanan & minuman',
   'fashion',
   'elektronik',
+  'perawatan diri',
   'hiburan',
   'lainnya',
 ];

@@ -15,7 +15,14 @@ export const findActiveChallenges = async () => {
     .where(
       and(
         eq(challenges.status, ChallengeStatus.ACTIVE),
-        gt(challenges.endDate, now),
+        or(
+          sql`${challenges.startDate} IS NULL`,
+          sql`${challenges.startDate} <= ${now}`,
+        ),
+        or(
+          sql`${challenges.endDate} IS NULL`,
+          sql`${challenges.endDate} > ${now}`,
+        ),
       ),
     );
 

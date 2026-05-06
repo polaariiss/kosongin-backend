@@ -60,6 +60,20 @@ export const updateWishlist = async (
       throw new ApiError(403, 'Anda tidak memiliki akses ke item ini');
     }
 
+    // Logic: Jika status diubah ke BOUGHT, pastikan masa tunggu sudah selesai
+    if (whislistStatus === 'bought') {
+      const createdAt = new Date(wishlist.createdAt);
+      const diffTime = Date.now() - createdAt.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < wishlist.waitingDays) {
+        throw new ApiError(
+          400,
+          `Masa tunggu belum selesai. Sisa ${wishlist.waitingDays - diffDays} hari lagi.`,
+        );
+      }
+    }
+
     const [updatedWishlist] = await wishlistQuery.updateWishlistStatus(
       id,
       whislistStatus,

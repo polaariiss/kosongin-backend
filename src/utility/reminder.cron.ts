@@ -26,17 +26,10 @@ export const startImpulseCron = () => {
       );
 
     const now = new Date();
-    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     for (const { wishlist, user } of pendingWishlists) {
       const createdAt = new Date(wishlist.createdAt);
-      const createdDate = new Date(
-        createdAt.getFullYear(),
-        createdAt.getMonth(),
-        createdAt.getDate(),
-      );
-
-      const diffTime = nowDate.getTime() - createdDate.getTime();
+      const diffTime = now.getTime() - createdAt.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays >= wishlist.waitingDays) {

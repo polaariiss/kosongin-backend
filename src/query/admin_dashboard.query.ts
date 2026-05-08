@@ -126,7 +126,7 @@ export const getActiveUsersEachDayAMonth = async () => {
   return await db
     .select({
       date: sql<String>`DATE(${userActivityLogs.createdAt})`,
-      totalActiveUsers: count(userActivityLogs.userId),
+      totalActiveUsers: countDistinct(userActivityLogs.userId),
     })
     .from(userActivityLogs)
     .where(gte(userActivityLogs.createdAt, sql`NOW() - INTERVAL '30 days'`))
@@ -145,4 +145,6 @@ export const getTopChallenges = async () => {
     .groupBy(userChallenges.challengeId, challenges.title)
     .orderBy(desc(count(userChallenges.userId)))
     .limit(3);
+};
+3);
 };

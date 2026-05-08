@@ -19,6 +19,8 @@ import { ApiError } from '../utility/api-error.js';
 import { authCache } from '../utility/cache.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
+const JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || 'rahasia_refresh';
 
 export const register = async (
   req: Request,
@@ -133,20 +135,26 @@ export const login = async (
       role: role,
     };
 
-    // Cek apakah ada token aktif di cache
-    const cachedToken = authCache.get<string>(`session:${userChecked.id}`);
-    if (cachedToken) {
-      return res.status(200).json({
-        success: true,
-        message: 'Login berhasil',
-        data: { token: cachedToken },
-      });
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+    const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
+      expiresIn: '7d',
+    });
+
+    // Simpan refreshToken ke DB
+    if (role === 'user') {
+      await db
+        .update(users)
+        .set({ refreshToken })
+        .where(eq(users.id, userChecked.id));
+    } else {
+      await db
+        .update(admin)
+        .set({ refreshToken })
+        .where(eq(admin.id, userChecked.id));
     }
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
-
     // Simpan token ke cache session
-    authCache.set(`session:${userChecked.id}`, token);
+    authCache.set(`session:${userChecked.id}`, accessToken);
 
     // Log aktivitas hanya untuk user biasa
     if (role === 'user') {
@@ -159,10 +167,59 @@ export const login = async (
     return res.status(200).json({
       success: true,
       message: 'Login berhasil',
-      data: { token: token },
+      data: {
+        accessToken,
+        refreshToken,
+      },
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const refresh = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      throw new ApiError(401, 'Refresh token required');
+    }
+
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as any;
+
+    let user;
+    if (decoded.role === 'user') {
+      [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, decoded.id));
+    } else {
+      [user] = await db
+        .select()
+        .from(admin)
+        .where(eq(admin.id, decoded.id));
+    }
+
+    if (!user || user.refreshToken !== refreshToken) {
+      throw new ApiError(401, 'Invalid refresh token');
+    }
+
+    const payload = { id: user.id, role: decoded.role };
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+
+    return res.status(200).json({
+      success: true,
+      data: { accessToken },
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      next(new ApiError(401, 'Invalid refresh token'));
+    } else {
+      next(error);
+    }
   }
 };
 
@@ -206,23 +263,21 @@ export const forgotPassword = async (
       .from(users)
       .where(eq(users.email, parsed.email));
 
-    if (!user) {
-      throw new ApiError(404, "Email didn't exist");
+    if (user) {
+      // generate token
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+
+      // simpan ke tabel password_reset_token
+      await db.insert(passwordResetToken).values({
+        userId: user.id,
+        token: resetToken,
+        expiresAt,
+      });
+
+      // kirim email
+      await sendResetPasswordEmail(user.email, resetToken);
     }
-
-    // generate token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
-
-    // simpan ke tabel password_reset_token
-    await db.insert(passwordResetToken).values({
-      userId: user.id,
-      token: resetToken,
-      expiresAt,
-    });
-
-    // kirim email
-    await sendResetPasswordEmail(user.email, resetToken);
 
     return res.status(200).json({
       message: 'Jika email terdaftar, link reset akan dikirim.',
@@ -266,7 +321,16 @@ export const resetPassword = async (
 
     const hashedPassword = await bcrypt.hash(parsed.password, 10);
 
-    // update password user
+    // update password user (cek isActive)
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, resetRecord.userId));
+
+    if (!user || !user.isActive) {
+      throw new ApiError(400, 'Akun tidak aktif atau tidak ditemukan');
+    }
+
     await db
       .update(users)
       .set({ password: hashedPassword })

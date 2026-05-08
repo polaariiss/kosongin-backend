@@ -8,10 +8,10 @@ export const getOverviewStats = async (
   next: NextFunction,
 ) => {
   try {
-    const total_users = query.getTotalUsers();
-    const total_consumption_logs = query.getTotalConsumptionLogs();
-    const total_cancelled_impulse = query.getCancelledImpulse();
-    const total_active_challenges = query.getTotalActiveChallenges();
+    const total_users = await query.getTotalUsers();
+    const total_consumption_logs = await query.getTotalConsumptionLogs();
+    const total_cancelled_impulse = await query.getCancelledImpulse();
+    const total_active_challenges = await query.getTotalActiveChallenges();
 
     const returnData = {
       total_users,

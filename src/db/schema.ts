@@ -86,6 +86,8 @@ export const users = pgTable('users', {
   // Reminder fields
   reminderTime: varchar('reminder_time', { length: 5 }), // Contoh format "HH:mm"
   reminderEnabled: boolean('reminder_enabled').default(false).notNull(),
+
+  refreshToken: text('refresh_token'),
 });
 
 // ==========================================
@@ -207,6 +209,7 @@ export const admin = pgTable('admin', {
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
+  refreshToken: text('refresh_token'),
 });
 
 // ==========================================

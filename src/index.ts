@@ -25,26 +25,6 @@ app.use(
   }),
 );
 
-// Scalar API Reference
-app.use(
-  '/reference',
-  apiReference({
-    theme: 'purple',
-    spec: {
-      content: fs.readFileSync('./openapi.yaml', 'utf-8'),
-    },
-  }),
-);
-
-// Health check endpoint untuk platform deployment
-app.get('/', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Kosongin API is running',
-    environment: process.env.NODE_ENV,
-  });
-});
-
 // Scalar API Documentation
 const openApiSpecPath = path.resolve(process.cwd(), 'openapi.yaml');
 if (fs.existsSync(openApiSpecPath)) {
@@ -59,6 +39,15 @@ if (fs.existsSync(openApiSpecPath)) {
     }),
   );
 }
+
+// Health check endpoint untuk platform deployment
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Kosongin API is running',
+    environment: process.env.NODE_ENV,
+  });
+});
 
 // Menghubungkan semua route dari folder routes
 app.use('/api', appRoutes);

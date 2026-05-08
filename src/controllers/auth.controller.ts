@@ -154,7 +154,7 @@ export const login = async (
     }
 
     // Simpan token ke cache session
-    authCache.set(`session:${userChecked.id}`, accessToken);
+    authCache.set(`session:${userChecked.id}`, accessToken, 900);
 
     // Log aktivitas hanya untuk user biasa
     if (role === 'user') {
@@ -210,8 +210,12 @@ export const refresh = async (
     const payload = { id: user.id, role: decoded.role };
     const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
 
+    // Update session cache agar sinkron dengan token baru
+    authCache.set(`session:${user.id}`, accessToken, 900); // TTL 15 menit (900 detik)
+
     return res.status(200).json({
       success: true,
+      message: "token refreshed",
       data: { accessToken },
     });
   } catch (error) {
@@ -241,6 +245,18 @@ export const logout = async (
     // Hapus dari cache
     authCache.del(`session:${decoded.id}`);
     authCache.del(`token:${token}`);
+
+    if (decoded.role === 'user') {
+      await db
+        .update(users)
+        .set({ refreshToken: null })
+        .where(eq(users.id, decoded.id));
+    } else {
+      await db
+        .update(admin)
+        .set({ refreshToken: null })
+        .where(eq(admin.id, decoded.id));
+    }
 
     return res.status(200).json({
       success: true,

@@ -85,10 +85,46 @@ paths:
                   data:
                     type: object
                     properties:
-                      token:
+                      accessToken:
+                        type: string
+                      refreshToken:
                         type: string
         '401':
           description: Kredensial salah
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refresh access token menggunakan refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Refresh berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+        '401':
+          description: Refresh token tidak valid atau kadaluarsa
           content:
             application/json:
               schema:
@@ -1405,6 +1441,14 @@ components:
                 type: string
               totalParticipants:
                 type: integer
+
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
 
     ErrorResponse:
       type: object

@@ -5,7 +5,7 @@ import {
   users,
   ChallengeStatus,
 } from '../db/schema.js';
-import { eq, and, gt, sql, count } from 'drizzle-orm';
+import { eq, and, or, gt, sql, count } from 'drizzle-orm';
 
 export const findActiveChallenges = async () => {
   const now = new Date();

@@ -312,6 +312,16 @@ paths:
           schema:
             type: string
             enum: [asc, desc]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date-time
       responses:
         '200':
           description: Berhasil mengambil data

@@ -30,8 +30,7 @@ export const createConsumptionLog = async (
       data: newLog[0],
     });
   } catch (error) {
-    console.error('Error create log:', error);
-    next(new ApiError(500, 'Gagal membuat log konsumsi'));
+    next(error);
   }
 };
 
@@ -51,8 +50,7 @@ export const getConsumptionLogs = async (
       data: logs,
     });
   } catch (error) {
-    console.error('Error fetch logs:', error);
-    next(new ApiError(500, 'Gagal mengambil log konsumsi'));
+    next(error);
   }
 };
 
@@ -80,12 +78,7 @@ export const updateConsumptionLog = async (
       data: updatedLog[0],
     });
   } catch (error) {
-    console.error('Error update log:', error);
-    next(
-      error instanceof ApiError
-        ? error
-        : new ApiError(500, 'Gagal memperbarui log konsumsi'),
-    );
+    next(error);
   }
 };
 
@@ -112,11 +105,6 @@ export const deleteConsumptionLog = async (
       message: 'Log konsumsi berhasil dihapus',
     });
   } catch (error) {
-    console.error('Error delete log:', error);
-    next(
-      error instanceof ApiError
-        ? error
-        : new ApiError(500, 'Gagal menghapus log konsumsi'),
-    );
+    next(error);
   }
 };

@@ -46,8 +46,19 @@ export const findWishlistsByUserId = async (userId: string) => {
     const createdAt = new Date(item.createdAt);
     const now = new Date();
 
-    // Menggunakan selisih waktu milidetik untuk akurasi lebih baik (24 jam per hari)
-    const diffTime = now.getTime() - createdAt.getTime();
+    // Reset waktu ke 00:00:00 untuk perbandingan berbasis kalender
+    const dateCreated = new Date(
+      createdAt.getFullYear(),
+      createdAt.getMonth(),
+      createdAt.getDate(),
+    );
+    const dateNow = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+
+    const diffTime = dateNow.getTime() - dateCreated.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     const remaining = Math.max(0, item.waitingDays - diffDays);
 

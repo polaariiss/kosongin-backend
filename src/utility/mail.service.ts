@@ -68,9 +68,9 @@ export const sendResetPasswordEmail = async (
     });
 
     if (error) {
-      console.error('❌ Gagal kirim email:', error);
+      console.error('Gagal kirim email:', error);
     } else {
-      console.log('✅ Email terkirim, ID:', data?.id); // ← bisa dicek di dashboard pakai ID ini
+      console.log('Email terkirim, ID:', data?.id); // ← bisa dicek di dashboard pakai ID ini
     }
   }
 };

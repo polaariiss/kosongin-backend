@@ -83,4 +83,6 @@ export const getLogsQuerySchema = z.object({
     .optional()
     .default('consumedAt'),
   order: z.enum(['asc', 'desc']).optional().default('desc'),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
 });

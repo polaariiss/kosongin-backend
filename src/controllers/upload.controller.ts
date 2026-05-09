@@ -30,6 +30,7 @@ export const getUploadSignature = async (
 
     res.status(200).json({
       success: true,
+      message: 'Signature generated successfully',
       data: {
         signature,
         timestamp,
@@ -39,6 +40,6 @@ export const getUploadSignature = async (
       },
     });
   } catch (error) {
-    next(new ApiError(500, 'Gagal generate signature'));
+    next(error);
   }
 };

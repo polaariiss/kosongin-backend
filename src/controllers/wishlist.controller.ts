@@ -13,7 +13,7 @@ export const createWishlist = async (
     const [wishlist] = await wishlistQuery.insertWishlist(req.body, userId);
 
     res.status(201).json({
-      status: 'success',
+      success: true,
       message: 'wishlist created!',
       data: wishlist,
     });
@@ -32,7 +32,7 @@ export const getWishlists = async (
     const wishlists = await wishlistQuery.findWishlistsByUserId(userId);
 
     res.status(200).json({
-      status: 'success',
+      success: true,
       message: 'wishlist get!',
       data: wishlists,
     });
@@ -60,13 +60,21 @@ export const updateWishlist = async (
       throw new ApiError(403, 'Anda tidak memiliki akses ke item ini');
     }
 
+    // Logic: Jika sudah dibeli atau dibatalkan, tidak boleh diubah statusnya lagi
+    if (wishlist.whislistStatus !== 'waiting') {
+      throw new ApiError(
+        400,
+        `Item ini sudah memiliki status ${wishlist.whislistStatus} dan tidak dapat diubah lagi.`,
+      );
+    }
+
     const [updatedWishlist] = await wishlistQuery.updateWishlistStatus(
       id,
       whislistStatus,
     );
 
     res.status(200).json({
-      status: 'success',
+      success: true,
       message: 'wishlist updated',
       data: updatedWishlist,
     });

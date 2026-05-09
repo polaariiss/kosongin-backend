@@ -9,7 +9,7 @@ import {
   wishlists,
 } from '../db/schema.js';
 import { db } from '../config/db.js';
-import { and, asc, count, desc, eq, ilike, or, sql, gte } from 'drizzle-orm';
+import { and, asc, count, countDistinct, desc, eq, ilike, or, sql, gte } from 'drizzle-orm';
 
 export const getTotalUsers = () => {
   return db.$count(users);
@@ -145,6 +145,4 @@ export const getTopChallenges = async () => {
     .groupBy(userChallenges.challengeId, challenges.title)
     .orderBy(desc(count(userChallenges.userId)))
     .limit(3);
-};
-3);
 };

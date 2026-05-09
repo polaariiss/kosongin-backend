@@ -75,13 +75,17 @@ export const createUser = async (
 ) => {
   try {
     const { fullName, nickName, email, password } = req.body;
-    const newUser = await db
+    const [newUser] = await db
       .insert(users)
       .values({ fullName, nickName, email, password })
       .returning();
-    res.status(201).json(newUser[0]);
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: newUser,
+    });
   } catch (error) {
-    next(new ApiError(500, 'Failed to add user'));
+    next(error);
   }
 };
 
@@ -91,11 +95,14 @@ export const getAllUsers = async (
   next: NextFunction,
 ) => {
   try {
-    // Karena kita mendaftarkan `{ schema }` di config, kita bisa pakai format query API yang modern seperti ini:
-    const getAllUsers = await db.query.users.findMany();
-    res.json(getAllUsers);
+    const allUsers = await db.query.users.findMany();
+    res.json({
+      success: true,
+      message: 'Users fetched successfully',
+      data: allUsers,
+    });
   } catch (error) {
-    next(new ApiError(500, 'Failed to fetch users'));
+    next(error);
   }
 };
 
@@ -105,17 +112,20 @@ export const getUserById = async (
   next: NextFunction,
 ) => {
   try {
-    // Hapus parseInt, langsung ambil string-nya
     const id = req.params.id as string;
 
-    const user = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db.select().from(users).where(eq(users.id, id));
 
-    if (user.length === 0) {
+    if (!user) {
       throw new ApiError(404, 'User not found');
     }
-    res.json(user[0]);
+    res.json({
+      success: true,
+      message: 'User fetched successfully',
+      data: user,
+    });
   } catch (error) {
-    next(new ApiError(500, 'Failed to fetch user'));
+    next(error);
   }
 };
 
@@ -125,19 +135,21 @@ export const deleteUser = async (
   next: NextFunction,
 ) => {
   try {
-    // Hapus parseInt, langsung ambil string-nya
     const id = req.params.id as string;
 
-    const deletedUser = await db
+    const [deletedUser] = await db
       .delete(users)
       .where(eq(users.id, id))
       .returning();
 
-    if (deletedUser.length === 0) {
+    if (!deletedUser) {
       throw new ApiError(404, 'User not found');
     }
-    res.json({ message: 'User deleted successfully' });
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+    });
   } catch (error) {
-    next(new ApiError(500, 'Failed to delete user'));
+    next(error);
   }
 };

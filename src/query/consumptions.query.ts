@@ -1,6 +1,6 @@
 import { db } from '../config/db.js';
 import { consumptionLogs, ConsumptionCategory } from '../db/schema.js';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { eq, and, desc, asc, gte, lte } from 'drizzle-orm';
 
 export interface CreateConsumptionData {
   itemName: string;
@@ -16,6 +16,8 @@ export interface GetLogsOptions {
   category?: ConsumptionCategory;
   sortBy?: 'consumedAt' | 'amount' | 'createdAt';
   order?: 'asc' | 'desc';
+  startDate?: string;
+  endDate?: string;
 }
 
 export const insertLog = async (
@@ -40,7 +42,13 @@ export const insertLog = async (
 };
 
 export const findLogs = async (options: GetLogsOptions, userId: string) => {
-  const { category, sortBy = 'consumedAt', order = 'desc' } = options;
+  const {
+    category,
+    sortBy = 'consumedAt',
+    order = 'desc',
+    startDate,
+    endDate,
+  } = options;
 
   let conditions = eq(consumptionLogs.userId, userId);
 
@@ -48,16 +56,36 @@ export const findLogs = async (options: GetLogsOptions, userId: string) => {
     conditions = and(conditions, eq(consumptionLogs.itemCategory, category))!;
   }
 
-  // Validasi sortBy agar tidak error saat akses object consumptionLogs
-  const validSortFields = ['consumedAt', 'amount', 'createdAt'];
-  const actualSortBy = validSortFields.includes(sortBy)
-    ? (sortBy as keyof typeof consumptionLogs)
-    : 'consumedAt';
+  if (startDate) {
+    conditions = and(
+      conditions,
+      gte(consumptionLogs.consumedAt, new Date(startDate)),
+    )!;
+  }
 
-  const orderBy =
-    order === 'desc'
-      ? desc(consumptionLogs[actualSortBy])
-      : asc(consumptionLogs[actualSortBy]);
+  if (endDate) {
+    conditions = and(
+      conditions,
+      lte(consumptionLogs.consumedAt, new Date(endDate)),
+    )!;
+  }
+
+  // Tentukan kolom sorting secara eksplisit agar type-safe
+  let sortColumn;
+  switch (sortBy) {
+    case 'amount':
+      sortColumn = consumptionLogs.amount;
+      break;
+    case 'createdAt':
+      sortColumn = consumptionLogs.createdAt;
+      break;
+    case 'consumedAt':
+    default:
+      sortColumn = consumptionLogs.consumedAt;
+      break;
+  }
+
+  const orderBy = order === 'desc' ? desc(sortColumn) : asc(sortColumn);
 
   return await db
     .select()

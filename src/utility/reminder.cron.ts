@@ -29,7 +29,20 @@ export const startImpulseCron = () => {
 
     for (const { wishlist, user } of pendingWishlists) {
       const createdAt = new Date(wishlist.createdAt);
-      const diffTime = now.getTime() - createdAt.getTime();
+      
+      // Reset waktu ke 00:00:00 untuk perbandingan kalender
+      const dateCreated = new Date(
+        createdAt.getFullYear(),
+        createdAt.getMonth(),
+        createdAt.getDate(),
+      );
+      const dateNow = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
+
+      const diffTime = dateNow.getTime() - dateCreated.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays >= wishlist.waitingDays) {

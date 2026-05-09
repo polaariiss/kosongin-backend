@@ -44,7 +44,7 @@ export const register = async (
     }
 
     if (userCheck) {
-      throw new ApiError(400, `${check} is already exist`);
+      throw new ApiError(409, `${check} is already exist`);
     }
 
     // check password & passwordConfirmation
@@ -71,6 +71,7 @@ export const register = async (
 
     // return response
     return res.status(201).json({
+      success: true,
       message: 'User berhasil dibuat',
       data: result,
     });
@@ -296,6 +297,7 @@ export const forgotPassword = async (
     }
 
     return res.status(200).json({
+      success: true,
       message: 'Jika email terdaftar, link reset akan dikirim.',
     });
   } catch (error) {

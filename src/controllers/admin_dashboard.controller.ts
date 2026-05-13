@@ -14,10 +14,10 @@ export const getOverviewStats = async (
     const total_active_challenges = await query.getTotalActiveChallenges();
 
     const returnData = {
-      total_users,
-      total_consumption_logs,
-      total_cancelled_impulse,
-      total_active_challenges,
+      totalUsers: total_users,
+      totalConsumptionLogs: total_consumption_logs,
+      totalCancelledImpulse: total_cancelled_impulse,
+      totalActiveChallenges: total_active_challenges,
     };
 
     res.status(200).json({
@@ -104,11 +104,15 @@ export const getMonitoringInsight = async (
   next: NextFunction,
 ) => {
   try {
-    const daily_active_users = await query.getActiveUsersEachDayAMonth();
-    const daily_logs = await query.getItemConsumptionEachDayAMonth();
+    const daily_active_users = await query.getActiveUsersEach7Day();
+    const daily_logs = await query.getItemConsumptionEach7Day();
     const top_challenges = await query.getTopChallenges();
 
-    const returnData = { daily_active_users, daily_logs, top_challenges };
+    const returnData = {
+      dailyActiveUsers: daily_active_users,
+      dailyLogs: daily_logs,
+      topChallenges: top_challenges,
+    };
 
     res.status(200).json({
       success: true,

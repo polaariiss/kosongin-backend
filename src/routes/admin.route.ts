@@ -36,13 +36,13 @@ router.get('/challenges', challengeController.getAllChallengesAdmin);
 
 router.post(
   '/challenges',
-  validateBody(createChallengeSchema as any),
+  validateBody(createChallengeSchema),
   challengeController.createChallenge,
 );
 
 router.put(
   '/challenges/:id',
-  validateBody(updateChallengeSchema as any),
+  validateBody(updateChallengeSchema),
   challengeController.updateChallenge,
 );
 

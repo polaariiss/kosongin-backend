@@ -75,7 +75,14 @@ export const getUsersPagination = async (params: ListUsersParams) => {
 
   // 2. Ambil data pagination
   const data = await db
-    .select()
+    .select({
+      id: users.id,
+      nickname: users.nickName,
+      fullName: users.fullName,
+      email: users.email,
+      createdAt: users.createdAt,
+      isActive: users.isActive,
+    })
     .from(users)
     .where(whereClause)
     .orderBy(desc(users.createdAt))
@@ -110,35 +117,81 @@ export const getAllUsersForExport = async () => {
     .orderBy(desc(users.createdAt));
 };
 
-export const getItemConsumptionEachDayAMonth = async () => {
-  return await db
+export const getItemConsumptionEach7Day = async () => {
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().split('T')[0];
+  });
+
+  const result = await db
     .select({
-      date: sql<String>`DATE(${consumptionLogs.createdAt})`,
+      date: sql<string>`DATE(${consumptionLogs.createdAt})`,
       totalItems: count(consumptionLogs.id),
     })
     .from(consumptionLogs)
-    .where(gte(consumptionLogs.createdAt, sql`NOW() - INTERVAL '30 days'`))
+    .where(gte(consumptionLogs.createdAt, sql`NOW() - INTERVAL '6 days'`))
     .groupBy(sql`DATE(${consumptionLogs.createdAt})`)
     .orderBy(sql`DATE(${consumptionLogs.createdAt}) ASC`);
+
+  return (last7Days as string[]).map((targetDate) => {
+    const found = result.find((r) => {
+      const rawDate = r.date as any;
+      let rDate = "";
+      if (rawDate instanceof Date) {
+        rDate = rawDate.toISOString().split('T')[0]!;
+      } else {
+        rDate = String(rawDate || "");
+      }
+      return rDate.includes(targetDate);
+    });
+    return {
+      date: targetDate,
+      totalItems: found ? Number(found.totalItems) : 0,
+    };
+  });
 };
 
-export const getActiveUsersEachDayAMonth = async () => {
-  return await db
+export const getActiveUsersEach7Day = async () => {
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().split('T')[0];
+  });
+
+  const result = await db
     .select({
-      date: sql<String>`DATE(${userActivityLogs.createdAt})`,
+      date: sql<string>`DATE(${userActivityLogs.createdAt})`,
       totalActiveUsers: countDistinct(userActivityLogs.userId),
     })
     .from(userActivityLogs)
-    .where(gte(userActivityLogs.createdAt, sql`NOW() - INTERVAL '30 days'`))
+    .where(gte(userActivityLogs.createdAt, sql`NOW() - INTERVAL '7 days'`))
     .groupBy(sql`DATE(${userActivityLogs.createdAt})`)
     .orderBy(sql`DATE(${userActivityLogs.createdAt}) ASC`);
+
+  return (last7Days as string[]).map((targetDate) => {
+    const found = result.find((r) => {
+      const rawDate = r.date as any;
+      let rDate = "";
+      if (rawDate instanceof Date) {
+        rDate = rawDate.toISOString().split('T')[0]!;
+      } else {
+        rDate = String(rawDate || "");
+      }
+      return rDate.includes(targetDate);
+    });
+    return {
+      date: targetDate,
+      totalActiveUsers: found ? Number(found.totalActiveUsers) : 0,
+    };
+  });
 };
 
 export const getTopChallenges = async () => {
   return await db
     .select({
-      challengeTitle: challenges.title,
-      totalParticipants: count(userChallenges.userId),
+      title: challenges.title,
+      participants: count(userChallenges.userId),
     })
     .from(userChallenges)
     .innerJoin(challenges, eq(userChallenges.challengeId, challenges.id))

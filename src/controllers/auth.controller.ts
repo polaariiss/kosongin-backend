@@ -29,18 +29,33 @@ export const register = async (
 ) => {
   try {
     const parsed = req.body;
-    // check uniqueness
+    // check uniqueness in both users and admin tables
     let check = parsed.nickname;
     let [userCheck] = await db
       .select()
       .from(users)
       .where(eq(users.nickName, parsed.nickname));
+
+    if (!userCheck) {
+      [userCheck] = (await db
+        .select()
+        .from(admin)
+        .where(eq(admin.nickName, parsed.nickname))) as any[];
+    }
+      
     if (!userCheck) {
       check = parsed.email;
       [userCheck] = await db
         .select()
         .from(users)
         .where(eq(users.email, parsed.email));
+      
+      if (!userCheck) {
+        [userCheck] = (await db
+          .select()
+          .from(admin)
+          .where(eq(admin.email, parsed.email))) as any[];
+      }
     }
 
     if (userCheck) {

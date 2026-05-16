@@ -1,9 +1,9 @@
 import NodeCache from 'node-cache';
 
-// stdTTL: 24 jam (86400 detik)
-// checkperiod: 1 jam untuk pembersihan berkala
+// stdTTL: 1 jam (3600 detik)
+// checkperiod: 10 menit (600 detik) untuk pembersihan lebih sering
 export const authCache = new NodeCache({
-  stdTTL: 86400,
-  checkperiod: 3600,
+  stdTTL: 3600,
+  checkperiod: 600,
   useClones: false,
 });

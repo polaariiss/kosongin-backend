@@ -29,18 +29,33 @@ export const register = async (
 ) => {
   try {
     const parsed = req.body;
-    // check uniqueness
+    // check uniqueness in both users and admin tables
     let check = parsed.nickname;
     let [userCheck] = await db
       .select()
       .from(users)
       .where(eq(users.nickName, parsed.nickname));
+
+    if (!userCheck) {
+      [userCheck] = (await db
+        .select()
+        .from(admin)
+        .where(eq(admin.nickName, parsed.nickname))) as any[];
+    }
+      
     if (!userCheck) {
       check = parsed.email;
       [userCheck] = await db
         .select()
         .from(users)
         .where(eq(users.email, parsed.email));
+      
+      if (!userCheck) {
+        [userCheck] = (await db
+          .select()
+          .from(admin)
+          .where(eq(admin.email, parsed.email))) as any[];
+      }
     }
 
     if (userCheck) {
@@ -154,9 +169,6 @@ export const login = async (
         .where(eq(admin.id, userChecked.id));
     }
 
-    // Simpan token ke cache session
-    authCache.set(`session:${userChecked.id}`, accessToken, 900);
-
     // Log aktivitas hanya untuk user biasa
     if (role === 'user') {
       await db.insert(userActivityLogs).values({
@@ -193,15 +205,9 @@ export const refresh = async (
 
     let user;
     if (decoded.role === 'user') {
-      [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, decoded.id));
+      [user] = await db.select().from(users).where(eq(users.id, decoded.id));
     } else {
-      [user] = await db
-        .select()
-        .from(admin)
-        .where(eq(admin.id, decoded.id));
+      [user] = await db.select().from(admin).where(eq(admin.id, decoded.id));
     }
 
     if (!user || user.refreshToken !== refreshToken) {
@@ -211,12 +217,9 @@ export const refresh = async (
     const payload = { id: user.id, role: decoded.role };
     const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
 
-    // Update session cache agar sinkron dengan token baru
-    authCache.set(`session:${user.id}`, accessToken, 900); // TTL 15 menit (900 detik)
-
     return res.status(200).json({
       success: true,
-      message: "token refreshed",
+      message: 'token refreshed',
       data: { accessToken },
     });
   } catch (error) {
@@ -244,7 +247,6 @@ export const logout = async (
     await db.insert(tokenBlacklists).values({ token, expiredAt });
 
     // Hapus dari cache
-    authCache.del(`session:${decoded.id}`);
     authCache.del(`token:${token}`);
 
     if (decoded.role === 'user') {

@@ -33,7 +33,8 @@ Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **___** s
    - Validation: Zod (Schema-based validation)
    - Authentication: JSON Web Token (JWT)
    - Job Scheduler: Node-cron (untuk pengingat dan update otomatis)
-   - API Documentation: OpenAPI/Swagger (direpresentasikan di openapi.yaml)
+   - API Documentation: OpenAPI/Scalar (direpresentasikan di openapi.yaml)
+   - Deployment: Railway
 
   ---
 

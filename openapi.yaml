@@ -1342,7 +1342,7 @@ components:
           type: string
         howTo:
           type: string
-        categoryTag:
+        challengesCategory:
           type: string
         imageUrl:
           type: string

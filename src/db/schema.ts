@@ -59,6 +59,12 @@ export enum ConsumptionCategory {
   ENTERTAINMENT = 'hiburan',
   OTHER = 'lainnya',
 }
+export enum challengesCategory {
+  ZERO_WASTE = 'Zero Waste',
+  NO_IMPULSE = 'No Impulse Buy',
+  ECO_EATING = 'Eco Eating',
+  SECONDHAND = 'SecondHand'
+}
 export const consumptionCategoryEnum = pgEnum('consumption_category', [
   'makanan & minuman',
   'fashion',
@@ -66,6 +72,12 @@ export const consumptionCategoryEnum = pgEnum('consumption_category', [
   'perawatan diri',
   'hiburan',
   'lainnya',
+]);
+export const challengesCategoryEnum = pgEnum('challege_category', [
+  'Zero Waste',
+  'No Impulse Buy',
+  'Eco Eating',
+  'SecondHand'
 ]);
 // ==========================================
 // 1. TABEL USERS
@@ -161,7 +173,7 @@ export const challenges = pgTable('challenges', {
   fullDescription: text('full_description').notNull(),
   rules: text('rules'),
   howTo: text('how_to'),
-  categoryTag: varchar('category_tag', { length: 100 }),
+  challengesCategory: challengesCategoryEnum('challenge_category',).notNull(),
   imageUrl: text('image_url'),
   durationDays: integer('duration_days'),
   startDate: timestamp('start_date'),

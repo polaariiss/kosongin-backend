@@ -1,0 +1,2 @@
+CREATE TYPE "public"."challenge_category" AS ENUM('Zero Waste', 'No Impulse Buy', 'Eco Eating', 'SecondHand');--> statement-breakpoint
+ALTER TABLE "challenges" RENAME COLUMN "category_tag" TO "challenge_category";

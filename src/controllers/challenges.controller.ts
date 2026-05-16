@@ -146,11 +146,7 @@ export const createChallenge = async (
   next: NextFunction,
 ) => {
   try {
-    const { category, ...rest } = req.body;
-    const dbData = {
-      ...rest,
-      categoryTag: category,
-    };
+    const dbData = req.body;
 
     const [newChallenge] = await challengeQuery.insertChallenge(dbData);
     res.status(201).json({
@@ -172,11 +168,7 @@ export const updateChallenge = async (
     const { id } = req.params as { id: string };
     if (!id) throw new ApiError(400, 'ID challenge wajib diisi');
 
-    const { category, ...rest } = req.body;
-    const dbData = {
-      ...rest,
-    };
-    if (category) dbData.categoryTag = category;
+    const dbData = req.body;
 
     const [updatedChallenge] = await challengeQuery.updateChallenge(id, dbData);
     if (!updatedChallenge) {

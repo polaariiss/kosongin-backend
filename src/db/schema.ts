@@ -63,7 +63,8 @@ export enum challengesCategory {
   ZERO_WASTE = 'Zero Waste',
   NO_IMPULSE = 'No Impulse Buy',
   ECO_EATING = 'Eco Eating',
-  SECONDHAND = 'SecondHand'
+  SECONDHAND = 'SecondHand',
+  LOWSPEND = 'LowSpend'
 }
 export const consumptionCategoryEnum = pgEnum('consumption_category', [
   'makanan & minuman',
@@ -77,7 +78,8 @@ export const challengesCategoryEnum = pgEnum('challenge_category', [
   'Zero Waste',
   'No Impulse Buy',
   'Eco Eating',
-  'SecondHand'
+  'SecondHand',
+  'LowSpend'
 ]);
 // ==========================================
 // 1. TABEL USERS

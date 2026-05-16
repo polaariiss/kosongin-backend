@@ -73,7 +73,7 @@ export const consumptionCategoryEnum = pgEnum('consumption_category', [
   'hiburan',
   'lainnya',
 ]);
-export const challengesCategoryEnum = pgEnum('challege_category', [
+export const challengesCategoryEnum = pgEnum('challenge_category', [
   'Zero Waste',
   'No Impulse Buy',
   'Eco Eating',

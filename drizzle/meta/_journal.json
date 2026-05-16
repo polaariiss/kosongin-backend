@@ -43,6 +43,13 @@
       "when": 1778210179783,
       "tag": "0005_long_star_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778948522274,
+      "tag": "0006_hesitant_lockjaw",
+      "breakpoints": true
     }
   ]
 }

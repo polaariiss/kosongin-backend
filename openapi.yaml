@@ -180,6 +180,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  success:
+                    type: boolean
+                    example: true
                   message:
                     type: string
                     example: 'Jika email terdaftar, link reset akan dikirim.'
@@ -1462,6 +1465,29 @@ components:
         refreshToken:
           type: string
           example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          example: 'ikmal@email.com'
+
+    ResetPasswordRequest:
+      type: object
+      required: [password, passwordConfirmation, token]
+      properties:
+        password:
+          type: string
+          example: 'password123'
+        passwordConfirmation:
+          type: string
+          example: 'password123'
+        token:
+          type: string
+          example: 'reset-token-here'
 
     ErrorResponse:
       type: object

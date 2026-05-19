@@ -86,7 +86,7 @@ export const sendReminderEmail = async (toEmail: string, fullName: string) => {
   if (isDev) {
     const transporter = await getTransporter();
     const info = await transporter!.sendMail({
-      from: '"App Name" <no-reply@app.com>',
+      from: process.env.RESEND_SENDER,
       to: toEmail,
       subject: '📝 Reminder: Catat Konsumsi Hari Ini!',
       html,
@@ -95,7 +95,7 @@ export const sendReminderEmail = async (toEmail: string, fullName: string) => {
   } else {
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
-      from: 'App Name <no-reply@domainmu.com>',
+      from: process.env.RESEND_SENDER!,
       to: toEmail,
       subject: '📝 Reminder: Catat Konsumsi Hari Ini!',
       html,
@@ -119,7 +119,7 @@ export const sendImpulseDoneEmail = async (
   if (isDev) {
     const transporter = await getTransporter();
     const info = await transporter!.sendMail({
-      from: '"App Name" <no-reply@app.com>',
+      from: process.env.RESEND_SENDER,
       to: toEmail,
       subject: `✨ Masa Tunggu "${itemName}" Selesai!`,
       html,

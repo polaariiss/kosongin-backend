@@ -4,7 +4,10 @@ import { verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
-// Semua endpoint challenge memerlukan login
+// Public Endpoints (No login required)
+router.get('/landing-page-challenge', challengeController.getLandingPageChallenges);
+
+// Semua endpoint di bawah ini memerlukan login
 router.use(verifyToken);
 
 // User Endpoints   

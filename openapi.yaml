@@ -720,13 +720,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /challenge/landing-page-challenge:
+    get:
+      tags:
+        - Challenge
+      summary: Ambil 5 challenge terpopuler untuk landing page
+      responses:
+        '200':
+          description: Berhasil mengambil 5 challenge terpopuler
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Berhasil mengambil 5 challenge terpopuler'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Challenge'
+
   /challenge/{id}:
     get:
       tags:
         - Challenge
       summary: Ambil detail challenge
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -750,12 +772,6 @@ paths:
                     example: 'Berhasil mengambil detail challenge'
                   data:
                     $ref: '#/components/schemas/Challenge'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Challenge tidak ditemukan
           content:
@@ -806,6 +822,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /challenge/{id}/participants:
+    get:
+      tags:
+        - Challenge
+      summary: Ambil daftar peserta challenge
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Berhasil mengambil daftar peserta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Berhasil mengambil daftar peserta'
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        nickName:
+                          type: string
+                        fullName:
+                          type: string
+                        joinedAt:
+                          type: string
+                          format: date-time
+
   # ============================================================
   # UPLOAD
   # ============================================================
@@ -814,8 +873,8 @@ paths:
       tags:
         - Upload
       summary: Dapatkan signature untuk upload Cloudinary
-      # security:
-      #   - bearerAuth: []
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -849,6 +908,77 @@ paths:
                         type: string
                       folder:
                         type: string
+
+  # ============================================================
+  # HELPER (Dev/Internal)
+  # ============================================================
+  /helper/admin/create:
+    post:
+      tags:
+        - Admin
+      summary: Buat akun admin baru (menggunakan special code)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nickname, fullname, email, password, passwordConfirmation, specialCode]
+              properties:
+                nickname: { type: string }
+                fullname: { type: string }
+                email: { type: string }
+                password: { type: string }
+                passwordConfirmation: { type: string }
+                specialCode: { type: integer }
+      responses:
+        '201':
+          description: Admin berhasil dibuat
+        '403':
+          description: Special code salah
+
+  /helper/users/create:
+    post:
+      tags:
+        - Admin
+      summary: Buat user baru (helper)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName: { type: string }
+                nickName: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '201':
+          description: User berhasil dibuat
+
+  /helper/users/get/all:
+    get:
+      tags:
+        - Admin
+      summary: Ambil semua user (helper)
+      responses:
+        '200':
+          description: Daftar user berhasil diambil
+
+  /helper/users/get/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Ambil user berdasarkan ID (helper)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: User berhasil diambil
 
   # ============================================================
   # ADMIN
@@ -1032,6 +1162,12 @@ paths:
       summary: Buat challenge baru
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChallengeRequest'
       responses:
         '201':
           description: Berhasil membuat challenge baru
@@ -1075,6 +1211,12 @@ paths:
           schema:
             type: string
             format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChallengeRequest'
       responses:
         '200':
           description: Berhasil memperbarui data challenge
@@ -1350,6 +1492,7 @@ components:
           type: string
         challengesCategory:
           type: string
+          enum: [Zero Waste, No Impulse Buy, Eco Eating, SecondHand, LowSpend]
         imageUrl:
           type: string
         durationDays:
@@ -1362,75 +1505,109 @@ components:
           format: date-time
         status:
           type: string
+          enum: [active, inactive]
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+        participantCount:
+          type: integer
+
+    CreateChallengeRequest:
+      type: object
+      required: [title, description, fullDescription, challengesCategory]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        fullDescription:
+          type: string
+        rules:
+          type: string
+        howTo:
+          type: string
+        challengesCategory:
+          type: string
+          enum: [Zero Waste, No Impulse Buy, Eco Eating, SecondHand, LowSpend]
+        imageUrl:
+          type: string
+        durationDays:
+          type: integer
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, inactive]
 
     UserChallenge:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        userId:
-          type: string
-          format: uuid
         challengeId:
           type: string
           format: uuid
+        title:
+          type: string
         joinedAt:
           type: string
           format: date-time
         progress:
           type: integer
-        updatedAt:
-          type: string
-          format: date-time
 
     AdminOverview:
       type: object
       properties:
-        total_users:
+        totalUsers:
           type: integer
-        total_consumption_logs:
+        totalConsumptionLogs:
           type: integer
-        total_cancelled_impulse:
+        totalCancelledImpulse:
           type: integer
-        total_active_challenges:
+        totalActiveChallenges:
           type: integer
 
     AdminUserList:
       type: object
       properties:
+        success:
+          type: boolean
+        message:
+          type: string
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-        meta:
           type: object
           properties:
-            page:
-              type: integer
-            limit:
-              type: integer
-            total:
-              type: integer
-            totalPages:
-              type: integer
-            next:
-              type: integer
-              nullable: true
-            prev:
-              type: integer
-              nullable: true
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+            meta:
+              type: object
+              properties:
+                page:
+                  type: integer
+                limit:
+                  type: integer
+                total:
+                  type: integer
+                totalPages:
+                  type: integer
+                next:
+                  type: integer
+                  nullable: true
+                prev:
+                  type: integer
+                  nullable: true
 
     AdminMonitoring:
       type: object
       properties:
-        daily_active_users:
+        dailyActiveUsers:
           type: array
           items:
             type: object
@@ -1439,7 +1616,7 @@ components:
                 type: string
               totalActiveUsers:
                 type: integer
-        daily_logs:
+        dailyLogs:
           type: array
           items:
             type: object
@@ -1448,7 +1625,7 @@ components:
                 type: string
               totalItems:
                 type: integer
-        top_challenges:
+        topChallenges:
           type: array
           items:
             type: object

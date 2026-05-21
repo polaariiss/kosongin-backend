@@ -1322,7 +1322,7 @@ components:
 
     RegisterRequest:
       type: object
-      required: [nickname, fullname, email, password, password_confirm]
+      required: [nickname, fullname, email, password, passwordConfirmation]
       properties:
         nickname:
           type: string
@@ -1336,7 +1336,7 @@ components:
         password:
           type: string
           example: 'password123'
-        password_confirm:
+        passwordConfirmation:
           type: string
           example: 'password123'
 

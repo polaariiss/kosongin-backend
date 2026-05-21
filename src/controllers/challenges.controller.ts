@@ -20,6 +20,23 @@ export const getActiveChallenges = async (
   }
 };
 
+export const getLandingPageChallenges = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const challenges = await challengeQuery.findTopActiveChallenges();
+    res.status(200).json({
+      success: true,
+      message: 'Berhasil mengambil 5 challenge terpopuler',
+      data: challenges,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getMyChallenges = async (
   req: AuthRequest,
   res: Response,
@@ -54,6 +71,7 @@ export const getAllChallengesAdmin = async (
     next(error);
   }
 };
+
 
 export const getChallengeById = async (
   req: AuthRequest,

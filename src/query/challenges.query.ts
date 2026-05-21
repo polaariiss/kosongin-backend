@@ -5,23 +5,30 @@ import {
   users,
   ChallengeStatus,
 } from '../db/schema.js';
-import { eq, and, or, gt, sql, count  } from 'drizzle-orm';
+import { eq, and, or, gt, lte, isNull, sql, count  } from 'drizzle-orm';
 
 export const findActiveChallenges = async () => {
   const now = new Date();
   const result = await db
-    .select()
+    .select({
+      id: challenges.id,
+      title: challenges.title,
+      challengesCategory: challenges.challengesCategory,
+      description: challenges.description,
+      imageUrl: challenges.imageUrl,
+      durationDays: challenges.durationDays,
+    })
     .from(challenges)
     .where(
       and(
         eq(challenges.status, ChallengeStatus.ACTIVE),
         or(
-          sql`${challenges.startDate} IS NULL`,
-          sql`${challenges.startDate} <= ${now}`,
+          isNull(challenges.startDate),
+          lte(challenges.startDate, now),
         ),
         or(
-          sql`${challenges.endDate} IS NULL`,
-          sql`${challenges.endDate} > ${now}`,
+          isNull(challenges.endDate),
+          gt(challenges.endDate, now),
         ),
       ),
     );
@@ -41,6 +48,52 @@ export const findActiveChallenges = async () => {
   );
 
   return challengesWithCount;
+};
+
+export const findTopActiveChallenges = async () => {
+  const now = new Date();
+  
+  // 1. Get active challenges
+  const result = await db
+    .select()
+    .from(challenges)
+    .where(
+      and(
+        eq(challenges.status, ChallengeStatus.ACTIVE),
+        or(
+          isNull(challenges.startDate),
+          lte(challenges.startDate, now),
+        ),
+        or(
+          isNull(challenges.endDate),
+          gt(challenges.endDate, now),
+        ),
+      ),
+    );
+
+  // 2. Get participant counts and map
+  const challengesWithCount = await Promise.all(
+    result.map(async (c) => {
+      const [countResult] = await db
+        .select({ value: count() })
+        .from(userChallenges)
+        .where(eq(userChallenges.challengeId, c.id));
+      return {
+        id: c.id,
+        title: c.title,
+        challengesCategory: c.challengesCategory,
+        description: c.description,
+        imageUrl: c.imageUrl,
+        durationDays: c.durationDays,
+        participantCount: countResult ? Number(countResult.value) : 0,
+      };
+    }),
+  );
+
+  // 3. Sort by participant count descending and take top 5
+  return challengesWithCount
+    .sort((a, b) => b.participantCount - a.participantCount)
+    .slice(0, 5);
 };
 
 export const findAllChallenges = async () => {

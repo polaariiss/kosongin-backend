@@ -286,10 +286,15 @@ export const forgotPassword = async (
 ) => {
   try {
     const parsed = req.body;
+
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.email, parsed.email));
+      .where(
+        parsed.email
+          ? eq(users.email, parsed.email)
+          : eq(users.nickName, parsed.nickname),
+      );
 
     if (user) {
       // generate token

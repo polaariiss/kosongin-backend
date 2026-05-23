@@ -299,7 +299,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /profile/delete-user:
-    post:
+    delete:
       tags:
         - Profile
       summary: Hapus akun pengguna secara permanen

@@ -150,7 +150,7 @@ export const login = async (
       role: role,
     };
 
-    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '6h' });
     const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
       expiresIn: '7d',
     });
@@ -174,6 +174,11 @@ export const login = async (
         userId: userChecked.id,
         activityType: ActivityType.LOGIN,
       });
+
+      await db
+        .update(users)
+        .set({ isActive: true })
+        .where(eq(users.id, userChecked.id));
     }
 
     return res.status(200).json({
@@ -252,6 +257,11 @@ export const logout = async (
       await db
         .update(users)
         .set({ refreshToken: null })
+        .where(eq(users.id, decoded.id));
+
+      await db
+        .update(users)
+        .set({ isActive: true })
         .where(eq(users.id, decoded.id));
     } else {
       await db

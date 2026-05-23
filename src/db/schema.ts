@@ -91,7 +91,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: text('password').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  isActive: boolean('status').default(true),
+  isActive: boolean('status').default(false),
   updatedAt: timestamp('updated_at')
     .defaultNow()
     .$onUpdate(() => new Date())

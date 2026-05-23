@@ -75,6 +75,8 @@ export const register = async (
         fullName: parsed.fullname,
         email: parsed.email,
         password: hashedPassword,
+        reminderTime: parsed.reminderTime,
+        reminderEnabled: parsed.reminderEnabled,
       })
       .returning({ id: users.id });
 

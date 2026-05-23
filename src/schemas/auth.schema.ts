@@ -15,6 +15,11 @@ export const registerSchema = z.object({
   passwordConfirmation: z
     .string()
     .min(8, 'Password confirmation minimal 8 karakter'),
+  reminderTime: z
+    .string()
+    .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Format waktu harus HH:mm')
+    .optional(),
+  reminderEnabled: z.boolean().optional(),
 });
 
 export const loginSchema = z

@@ -177,6 +177,7 @@ export const challenges = pgTable('challenges', {
   howTo: text('how_to'),
   challengesCategory: challengesCategoryEnum('challenge_category',).notNull(),
   imageUrl: text('image_url'),
+  sourceUrl: text('source_url'),
   durationDays: integer('duration_days'), 
   startDate: timestamp('start_date'),
   endDate: timestamp('end_date'),

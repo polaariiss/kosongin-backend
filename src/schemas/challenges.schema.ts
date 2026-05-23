@@ -12,6 +12,7 @@ export const createChallengeSchema = z.object({
   howTo: z.string().optional().nullable(),
   challengesCategory: ChallengesCategorySchema,
   imageUrl: z.string().url('URL gambar tidak valid').optional().nullable(),
+  sourceUrl: z.string().url('URL sumber tidak valid').optional().nullable(),
   durationDays: z.coerce.number().int().positive().optional().nullable(),
   startDate: z.string().datetime().optional().nullable(),
   endDate: z.string().datetime().optional().nullable(),

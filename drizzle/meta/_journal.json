@@ -50,6 +50,13 @@
       "when": 1778948522274,
       "tag": "0006_hesitant_lockjaw",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779547477676,
+      "tag": "0007_salty_boomer",
+      "breakpoints": true
     }
   ]
 }

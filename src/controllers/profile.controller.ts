@@ -64,12 +64,12 @@ export const updateReminderSettigns = async (
 };
 
 export const deleteUser = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const id = req.params.id as string;
+    const id = req.user.id;
 
     const [deletedUser] = await db
       .delete(users)

@@ -1,6 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as query from '../query/admin_dashboard.query.js';
 import * as fastcsv from 'fast-csv';
+import { users } from '../db/schema.js';
+import { db } from '../config/db.js';
+import { ApiError } from '../utility/api-error.js';
+import {eq } from 'drizzle-orm';
 
 export const getOverviewStats = async (
   req: Request,
@@ -118,6 +122,31 @@ export const getMonitoringInsight = async (
       success: true,
       message: 'Data monitoring berhasil diambil',
       data: returnData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id as string;
+
+    const [deletedUser] = await db
+      .delete(users)
+      .where(eq(users.id, id))
+      .returning();
+
+    if (!deletedUser) {
+      throw new ApiError(404, 'User not found');
+    }
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
     });
   } catch (error) {
     next(error);

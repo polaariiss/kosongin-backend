@@ -62,3 +62,28 @@ export const updateReminderSettigns = async (
     next(error);
   }
 };
+
+export const deleteUser = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.user.id;
+
+    const [deletedUser] = await db
+      .delete(users)
+      .where(eq(users.id, id))
+      .returning();
+
+    if (!deletedUser) {
+      throw new ApiError(404, 'User not found');
+    }
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

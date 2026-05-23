@@ -19,8 +19,7 @@ import { ApiError } from '../utility/api-error.js';
 import { authCache } from '../utility/cache.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rahasia';
-const JWT_REFRESH_SECRET =
-  process.env.JWT_REFRESH_SECRET || 'rahasia_refresh';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'rahasia_refresh';
 
 export const register = async (
   req: Request,
@@ -42,14 +41,14 @@ export const register = async (
         .from(admin)
         .where(eq(admin.nickName, parsed.nickname))) as any[];
     }
-      
+
     if (!userCheck) {
       check = parsed.email;
       [userCheck] = await db
         .select()
         .from(users)
         .where(eq(users.email, parsed.email));
-      
+
       if (!userCheck) {
         [userCheck] = (await db
           .select()
@@ -215,7 +214,7 @@ export const refresh = async (
     }
 
     const payload = { id: user.id, role: decoded.role };
-    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '6h' });
 
     return res.status(200).json({
       success: true,

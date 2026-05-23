@@ -27,9 +27,14 @@ export const loginSchema = z
     message: 'Either email or nickname is required',
   });
 
-export const forgetPasswordSchema = z.object({
-  email: z.string().email('Invalid email address').max(255),
-});
+export const forgetPasswordSchema = z
+  .object({
+    email: z.string().email('Invalid email address').max(255).optional(),
+    nickname: z.string().min(1).max(255).optional(),
+  })
+  .refine((data) => data.email || data.nickname, {
+    message: 'Either email or nickname is required',
+  });
 
 export const resetPasswordSchema = z.object({
   password: z.string().min(8, 'Password minimal 8 karakter'),

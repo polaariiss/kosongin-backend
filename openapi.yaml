@@ -177,7 +177,7 @@ paths:
     post:
       tags:
         - Auth
-      summary: Request link reset password ke email
+      summary: Request link reset password (email/nickname)
       requestBody:
         required: true
         content:
@@ -1328,12 +1328,17 @@ components:
 
     ForgotPasswordRequest:
       type: object
-      required: [email]
       properties:
         email:
           type: string
           format: email
           example: 'ikmal@email.com'
+        nickname:
+          type: string
+          example: 'ikmal'
+      oneOf:
+        - required: [email]
+        - required: [nickname]
 
     ResetPasswordRequest:
       type: object

@@ -261,7 +261,7 @@ export const logout = async (
 
       await db
         .update(users)
-        .set({ isActive: true })
+        .set({ isActive: false })
         .where(eq(users.id, decoded.id));
     } else {
       await db

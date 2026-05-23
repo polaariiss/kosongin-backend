@@ -1302,6 +1302,13 @@ components:
           type: string
           minLength: 8
           example: 'password123'
+        reminderTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          example: '19:00'
+        reminderEnabled:
+          type: boolean
+          example: true
 
     LoginRequest:
       type: object

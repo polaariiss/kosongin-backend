@@ -46,3 +46,38 @@ export const getActiveChallengeCount = async (userId: string) => {
     .where(eq(tables.userChallenges.userId, userId));
   return Number(result[0]?.value ?? 0);
 };
+
+export const getDailyConsumptionTrend = async (userId: string, since: Date) => {
+  return await db
+    .select({
+      date: sql<string>`DATE(${tables.consumptionLogs.consumedAt})`.as('date'),
+      total: sql<number>`SUM(${tables.consumptionLogs.amount})`.as('total'),
+    })
+    .from(tables.consumptionLogs)
+    .where(
+      and(
+        eq(tables.consumptionLogs.userId, userId),
+        gte(tables.consumptionLogs.consumedAt, since),
+      ),
+    )
+    .groupBy(sql`DATE(${tables.consumptionLogs.consumedAt})`)
+    .orderBy(sql`DATE(${tables.consumptionLogs.consumedAt}) ASC`);
+};
+
+export const getWeeklyConsumptionTrend = async (userId: string) => {
+  // Ambil total per minggu untuk 4 minggu terakhir
+  return await db
+    .select({
+      week: sql<string>`TO_CHAR(${tables.consumptionLogs.consumedAt}, 'IYYY-IW')`.as('week'),
+      total: sql<number>`SUM(${tables.consumptionLogs.amount})`.as('total'),
+    })
+    .from(tables.consumptionLogs)
+    .where(
+      and(
+        eq(tables.consumptionLogs.userId, userId),
+        gte(tables.consumptionLogs.consumedAt, sql`NOW() - INTERVAL '4 weeks'`),
+      ),
+    )
+    .groupBy(sql`TO_CHAR(${tables.consumptionLogs.consumedAt}, 'IYYY-IW')`)
+    .orderBy(sql`TO_CHAR(${tables.consumptionLogs.consumedAt}, 'IYYY-IW') ASC`);
+};

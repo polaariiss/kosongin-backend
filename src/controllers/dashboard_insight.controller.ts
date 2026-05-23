@@ -46,15 +46,59 @@ export const getPersonalInsightData = async (
       logs,
       weeklyResults,
       monthlyResults,
+      dailyTrendResults,
+      weeklyTrendResults,
       wishlistValue,
       active_challengeValue,
     ] = await Promise.all([
       query.getUniqueConsumptionDates(userId),
       query.getConsumptionSummary(userId, sevenDaysAgo),
       query.getConsumptionSummary(userId, thirtyDaysAgo),
+      query.getDailyConsumptionTrend(userId, sevenDaysAgo),
+      query.getWeeklyConsumptionTrend(userId),
       query.getActiveWishlistCount(userId),
       query.getActiveChallengeCount(userId),
     ]);
+
+    // Format daily trend (ensure all 7 days are present)
+    const daily_trend = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      
+      const found = dailyTrendResults.find(r => {
+        const rDate = r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date);
+        return rDate === dateStr;
+      });
+      
+      daily_trend.push({
+        date: dateStr,
+        total: found ? Number(found.total) : 0
+      });
+    }
+
+    // Format weekly trend (last 4 weeks)
+    const weekly_trend = [];
+    for (let i = 3; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - (i * 7));
+      
+      // Get ISO week string (YYYY-WW)
+      const year = d.getFullYear();
+      const firstDayOfYear = new Date(year, 0, 1);
+      const days = Math.floor((d.getTime() - firstDayOfYear.getTime()) / (24 * 60 * 60 * 1000));
+      const weekNum = Math.ceil((days + firstDayOfYear.getDay() + 1) / 7);
+      const weekStr = `${year}-${String(weekNum).padStart(2, '0')}`;
+
+      const found = weeklyTrendResults.find(r => String(r.week) === weekStr);
+      
+      weekly_trend.push({
+        label: i === 0 ? "Minggu Ini" : `${i} Minggu Lalu`,
+        week: weekStr,
+        total: found ? Number(found.total) : 0
+      });
+    }
 
     let streakValue = 0;
     if (logs.length > 0) {
@@ -93,6 +137,8 @@ export const getPersonalInsightData = async (
       streak: streakValue,
       weekly_summary: formatted_weekly_summary,
       monthly_summary: formatted_monthly_summary,
+      daily_trend,
+      weekly_trend,
       wishlist_count: wishlistValue,
       active_challenge: active_challengeValue,
     };

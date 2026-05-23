@@ -10,5 +10,5 @@ const router = Router();
 
 router.get('/', verifyToken, getProfile);
 router.patch('/reminder-settings', verifyToken, updateReminderSettigns);
-router.post('/delete-user', verifyToken, deleteUser)
+router.delete('/delete-user', verifyToken, deleteUser)
 export default router;

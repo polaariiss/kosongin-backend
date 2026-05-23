@@ -17,37 +17,38 @@ export const findActiveChallenges = async () => {
       description: challenges.description,
       imageUrl: challenges.imageUrl,
       durationDays: challenges.durationDays,
+      startDate: challenges.startDate,
     })
     .from(challenges)
     .where(
       and(
         eq(challenges.status, ChallengeStatus.ACTIVE),
-        or(
-          isNull(challenges.startDate),
-          lte(challenges.startDate, now),
-        ),
-        or(
-          isNull(challenges.endDate),
-          gt(challenges.endDate, now),
-        ),
+        or(isNull(challenges.endDate), gt(challenges.endDate, now)),
       ),
     );
 
-  // Add participant count for each challenge
-  const challengesWithCount = await Promise.all(
+  // Add participant count and label for each challenge
+  const challengesWithDetails = await Promise.all(
     result.map(async (c) => {
       const [countResult] = await db
         .select({ value: count() })
         .from(userChallenges)
         .where(eq(userChallenges.challengeId, c.id));
+
+      const label =
+        c.startDate === null || c.startDate <= now
+          ? 'Sedang Berlangsung'
+          : 'Akan Datang';
+
       return {
         ...c,
         participantCount: countResult ? Number(countResult.value) : 0,
+        label,
       };
     }),
   );
 
-  return challengesWithCount;
+  return challengesWithDetails;
 };
 
 export const findTopActiveChallenges = async () => {

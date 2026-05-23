@@ -1611,6 +1611,10 @@ components:
           format: date-time
         participantCount:
           type: integer
+        label:
+          type: string
+          example: 'Sedang Berlangsung'
+          enum: ['Sedang Berlangsung', 'Akan Datang']
 
     CreateChallengeRequest:
       type: object

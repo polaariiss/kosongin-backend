@@ -161,7 +161,7 @@ export const login = async (
     if (role === 'user') {
       await db
         .update(users)
-        .set({ refreshToken })
+        .set({ refreshToken, isActive: true })
         .where(eq(users.id, userChecked.id));
     } else {
       await db
@@ -176,11 +176,6 @@ export const login = async (
         userId: userChecked.id,
         activityType: ActivityType.LOGIN,
       });
-
-      await db
-        .update(users)
-        .set({ isActive: true })
-        .where(eq(users.id, userChecked.id));
     }
 
     return res.status(200).json({
@@ -258,12 +253,10 @@ export const logout = async (
     if (decoded.role === 'user') {
       await db
         .update(users)
-        .set({ refreshToken: null })
-        .where(eq(users.id, decoded.id));
-
-      await db
-        .update(users)
-        .set({ isActive: false })
+        .set({
+          refreshToken: null,
+          isActive: false,
+        })
         .where(eq(users.id, decoded.id));
     } else {
       await db
@@ -363,9 +356,12 @@ export const resetPassword = async (
       .from(users)
       .where(eq(users.id, resetRecord.userId));
 
-    if (!user || !user.isActive) {
-      throw new ApiError(400, 'Akun tidak aktif atau tidak ditemukan');
+    if (!user) {
+      throw new ApiError(404, 'User tidak ditemukan');
     }
+
+    // Note: We are removing the isActive check here because isActive seems to be used as an "Online" status.
+    // If a user is logged out, they should still be able to reset their password.
 
     await db
       .update(users)

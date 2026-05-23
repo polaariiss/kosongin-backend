@@ -24,6 +24,7 @@ router.get('/stats', dashboardController.getOverviewStats);
 // data pengguna
 router.get('/users', dashboardController.getUsersLists);
 router.get('/users/export', dashboardController.exportUsers); // return downloadable csv
+router.delete('/users/:id', dashboardController.deleteUser);
 
 // monitoring aktivitas
 router.get('/monitoring', dashboardController.getMonitoringInsight);

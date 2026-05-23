@@ -16,7 +16,6 @@ import {
   createUser,
   getAllUsers,
   getUserById,
-  deleteUser,
 } from '../controllers/helper.controller.js';
 
 const router = Router();

@@ -68,7 +68,12 @@ export const getPersonalInsightData = async (
       const dateStr = d.toISOString().split('T')[0];
       
       const found = dailyTrendResults.find(r => {
-        const rDate = r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date);
+        // Ambil bagian YYYY-MM-DD dari string atau Date
+        // Cast ke any untuk menghindari error TS2358 saat build
+        const rDateRaw = r.date as any;
+        const rDate = (rDateRaw instanceof Date) 
+          ? rDateRaw.toISOString().split('T')[0] 
+          : String(rDateRaw).split('T')[0]; 
         return rDate === dateStr;
       });
       

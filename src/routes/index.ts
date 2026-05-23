@@ -18,7 +18,7 @@ router.use('/auth', authRoute);
 router.use('/profile', profileRoute);
 router.use('/wishlist', wishlistRoute);
 router.use('/dashboard/insight', dashboardInsightRoute);
-router.use('/challenge', challengeRoute);
+router.use('/challenges', challengeRoute);
 router.use('/admin', adminRoute);
 router.use('/helper', helperRoute);
 

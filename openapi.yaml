@@ -659,7 +659,7 @@ paths:
   # ============================================================
   # CHALLENGE
   # ============================================================
-  /challenge:
+  /challenges:
     get:
       tags:
         - Challenge
@@ -691,7 +691,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /challenge/me:
+  /challenges/me:
     get:
       tags:
         - Challenge
@@ -723,7 +723,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /challenge/landing-page-challenge:
+  /challenges/landing-page-challenge:
     get:
       tags:
         - Challenge
@@ -747,7 +747,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Challenge'
 
-  /challenge/{id}:
+  /challenges/{id}:
     get:
       tags:
         - Challenge
@@ -782,7 +782,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /challenge/{id}/join:
+  /challenges/{id}/join:
     post:
       tags:
         - Challenge
@@ -825,7 +825,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /challenge/{id}/participants:
+  /challenges/{id}/participants:
     get:
       tags:
         - Challenge

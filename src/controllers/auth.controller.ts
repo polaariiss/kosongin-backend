@@ -291,21 +291,23 @@ export const forgotPassword = async (
           : eq(users.nickName, parsed.nickname),
       );
 
-    if (user) {
-      // generate token
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
-
-      // simpan ke tabel password_reset_token
-      await db.insert(passwordResetToken).values({
-        userId: user.id,
-        token: resetToken,
-        expiresAt,
-      });
-
-      // kirim email
-      await sendResetPasswordEmail(user.email, resetToken);
+    if (!user) {
+      throw new ApiError(404, 'user not found');
     }
+
+    // generate token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+
+    // simpan ke tabel password_reset_token
+    await db.insert(passwordResetToken).values({
+      userId: user.id,
+      token: resetToken,
+      expiresAt,
+    });
+
+    // kirim email
+    await sendResetPasswordEmail(user.email, resetToken);
 
     return res.status(200).json({
       success: true,

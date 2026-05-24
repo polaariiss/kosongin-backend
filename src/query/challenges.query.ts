@@ -5,7 +5,7 @@ import {
   users,
   ChallengeStatus,
 } from '../db/schema.js';
-import { eq, and, or, gt, lte, isNull, sql, count  } from 'drizzle-orm';
+import { eq, and, or, gt, lte, isNull, sql, count, desc  } from 'drizzle-orm';
 
 export const findActiveChallenges = async () => {
   const now = new Date();
@@ -20,12 +20,7 @@ export const findActiveChallenges = async () => {
       startDate: challenges.startDate,
     })
     .from(challenges)
-    .where(
-      and(
-        eq(challenges.status, ChallengeStatus.ACTIVE),
-        or(isNull(challenges.endDate), gt(challenges.endDate, now)),
-      ),
-    );
+    .orderBy(desc(challenges.startDate));
 
   // Add participant count and label for each challenge
   const challengesWithDetails = await Promise.all(
@@ -58,20 +53,8 @@ export const findTopActiveChallenges = async () => {
   const result = await db
     .select()
     .from(challenges)
-    .where(
-      and(
-        eq(challenges.status, ChallengeStatus.ACTIVE),
-        or(
-          isNull(challenges.startDate),
-          lte(challenges.startDate, now),
-        ),
-        or(
-          isNull(challenges.endDate),
-          gt(challenges.endDate, now),
-        ),
-      ),
-    );
-
+    .orderBy(desc(challenges.startDate));
+    
   // 2. Get participant counts and map
   const challengesWithCount = await Promise.all(
     result.map(async (c) => {

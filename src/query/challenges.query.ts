@@ -10,15 +10,7 @@ import { eq, and, or, gt, lte, isNull, sql, count  } from 'drizzle-orm';
 export const findActiveChallenges = async () => {
   const now = new Date();
   const result = await db
-    .select({
-      id: challenges.id,
-      title: challenges.title,
-      challengesCategory: challenges.challengesCategory,
-      description: challenges.description,
-      imageUrl: challenges.imageUrl,
-      durationDays: challenges.durationDays,
-      startDate: challenges.startDate,
-    })
+    .select()
     .from(challenges)
     .where(
       and(

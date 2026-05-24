@@ -1,7 +1,8 @@
 # Proyek Capstone: Kosongin (Backend API)
 
-1. Tentang Proyek
-Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **___** sebagai bagian dari proyek akhir (Capstone Project) program Veteran Tech 2026.
+## 1. Tentang Proyek
+
+Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **Node.js, Express.js, TypeScript, dan PostgreSQL** sebagai bagian dari proyek akhir (Capstone Project) program Veteran Tech 2026.
 
 **Kosongin** hadir sebagai platform "rem digital" dan ruang refleksi bagi Gen Z dan Milenial untuk membangun kebiasaan belanja yang lebih sadar (*mindful consumption*). Aplikasi ini fokus pada intervensi perilaku sebelum transaksi (melalui *Impulse Shield*), pelacakan riwayat konsumsi, dan penyediaan wadah aksi nyata melalui *Community Challenges* untuk mengatasi *eco-guilt*.
 
@@ -24,8 +25,7 @@ Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **___** s
 
 ---
 
-
-  2. Tech Stack
+## 2. Tech Stack
   Project ini dibangun dengan arsitektur modern berbasis Node.js:
    - Language: TypeScript
    - Framework: Express.js
@@ -37,15 +37,31 @@ Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **___** s
    - Deployment: Railway
 
   ---
+---
 
-  3. Struktur Project & Penjelasan Folder
+## 3. Prerequisites & Requirements
 
+Sebelum memulai, pastikan sistem Anda memiliki:
+- **Node.js** v18.x atau lebih tinggi ([Download](https://nodejs.org/))
+- **npm** v9.x atau lebih tinggi (biasanya disertakan dengan Node.js)
+- **PostgreSQL** v12 atau lebih tinggi (database server lokal atau remote)
+- **Git** untuk cloning repository
+
+Verifikasi instalasi:
+```bash
+node --version    # Harus v18.x+
+npm --version     # Harus v9.x+
+```
+
+---
+
+## 4
   Berikut adalah peta dari direktori src/:
 
     1 src/
-    2 ├── config/             # Konfigurasi pihak ketiga (Database, Cloudinary)
-    3 ├── controllers/        # Logika bisnis utama & penanganan Request/Response
-    4 ├── db/                 # Definisi Schema database dan migrasi (Drizzle)
+---
+
+## 5 4 ├── db/                 # Definisi Schema database dan migrasi (Drizzle)
     5 ├── middlewares/        # Fungsi perantara (Auth, Error handling, Validation)
     6 ├── query/              # Layer akses data (Query SQL mentah/Drizzle)
     7 ├── routes/             # Definisi endpoint API dan pemetaan ke controller
@@ -74,8 +90,191 @@ Aplikasi ini merupakan *Backend API Service* yang dibangun menggunakan **___** s
    5. Controller (controllers/): Jika validasi & auth lolos, controller mengambil alih. Controller bertugas mengolah logika (misal: menghitung
       sesuatu) tapi tidak melakukan query langsung.
    6. Query (query/): Controller memanggil fungsi di layer Query. Di sini Drizzle ORM melakukan interaksi dengan database PostgreSQL.
-  5. Cara Memulai
-   1. Environment: Salin .env.example menjadi .env dan isi kredensial database Anda.
-   2. Database: Jalankan npx drizzle-kit push:pg untuk mensinkronisasi schema ke database lokal Anda.
-   3. Development: Jalankan npm run dev untuk memulai server dengan mode watch (hot reload).
-   4. Testing: Gunakan Postman Collection yang sudah disediakan untuk mencoba endpoint-endpoint yang ada.
+
+---
+
+## 6. Quick Start - Cara Memulai Lokal
+
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/polaariiss/kosongin-backend.git
+cd kosongin-backend
+```
+
+### Step 2: Install Dependencies
+```bash
+npm install
+```
+
+### Step 3: Setup Environment Variables
+Salin `.env.example` ke `.env`:
+```bash
+cp .env.example .env
+```
+
+Kemudian edit `.env` dan isi nilai-nilai berikut dengan kredensial Anda:
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/kosongin_db
+
+# Cloudinary (untuk upload gambar)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Email Service (Resend)
+RESEND_API_KEY=your_resend_api_key
+RESEND_SENDER=noreply@kosongin.example.com
+
+# Upload Folders
+UPLOAD_CONSUMPTION_FOLDER=consumptions
+UPLOAD_CHALLENGE_POSTER_FOLDER=challenges
+
+# Environment
+NODE_ENV=development
+
+# Frontend URL (untuk CORS)
+FRONTEND_URL=http://localhost:3000
+
+# Admin Special Code
+ADMIN_SPECIAL_CODE=your_admin_code
+```
+
+> **⚠️ Catatan:** Jangan commit file `.env` ke repository. Gunakan `.env.example` sebagai template.
+
+### Step 4: Setup Database
+Jalankan migrasi schema ke database PostgreSQL Anda:
+```bash
+npm run db:push
+```
+
+(Alternatif: Jika ingin generate migrasi baru, gunakan `npm run db:generate`)
+
+### Step 5: (Opsional) Seed Database
+Jika ingin mengisi database dengan data dummy untuk testing:
+```bash
+npm run db:seed
+```
+
+### Step 6: Jalankan Server
+Untuk development dengan hot reload:
+```bash
+npm run dev
+```
+
+Server akan berjalan di `http://localhost:3000` (atau port lain yang terdefinisi).
+
+Atau untuk production:
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 7. API Documentation
+
+Dokumentasi API tersedia di dua format:
+
+### Scalar UI (Recommended)
+Akses dokumentasi API interaktif di:
+```
+http://localhost:3000/api/docs
+```
+
+### OpenAPI Specification
+File lengkap OpenAPI spec tersedia di:
+```
+./openapi.yaml
+```
+
+Anda bisa import file ini ke Postman atau tools lainnya untuk testing.
+
+---
+
+## 8. Testing dengan Postman
+
+### Import Postman Collection
+1. Buka Postman
+2. Klik **Import** → **File**
+3. Pilih Postman collection file (jika disediakan di repo)
+4. Collection akan berisi semua endpoint yang sudah dikonfigurasi
+
+### Atau Manual Setup
+Jika tidak ada pre-made collection:
+1. Set Base URL: `http://localhost:3000/api`
+2. Gunakan dokumentasi OpenAPI di bagian [API Documentation](#7-api-documentation)
+3. Untuk endpoint yang memerlukan auth, tambahkan header:
+   ```
+   Authorization: Bearer YOUR_JWT_TOKEN
+   ```
+
+---
+
+## 9. Available Scripts
+
+| Command | Deskripsi |
+|---------|-----------|
+| `npm run dev` | Jalankan server dalam dev mode dengan hot reload |
+| `npm run build` | Build TypeScript ke JavaScript |
+| `npm start` | Jalankan production build |
+| `npm run lint` | Cek code style dengan ESLint |
+| `npm run format` | Format code dengan Prettier |
+| `npm run db:push` | Sinkronkan schema database |
+| `npm run db:generate` | Generate migrasi database baru |
+| `npm run db:seed` | Seed database dengan data dummy |
+
+---
+
+## 10. Production Deployment
+
+### URL Production
+```
+Vercel: https://kosongin.vercel.app
+```
+
+```
+Railway: https://postgres-production-53aa.up.railway.app
+```
+
+### Environment Variables untuk Production
+Pastikan environment variables berikut sudah dikonfigurasi di platform deployment (Railway/Vercel/etc):
+- `DATABASE_URL` → Production PostgreSQL URL
+- `NODE_ENV=production`
+- `CLOUDINARY_*` → Production credentials
+- `RESEND_API_KEY` → Production email service key
+- `FRONTEND_URL` → Production frontend URL
+- Semua variabel lainnya sesuai dengan `.env.example`
+
+---
+
+## 11. Troubleshooting
+
+### Port 3000 sudah terpakai
+```bash
+# Ubah port di src/index.ts atau set environment variable PORT
+PORT=3001 npm run dev
+```
+
+### Database connection error
+- Pastikan PostgreSQL server berjalan
+- Cek `DATABASE_URL` di `.env` sudah benar
+- Verifikasi credentials database
+
+### Hot reload tidak berfungsi (dev mode)
+```bash
+npm install -g tsx  # Install tsx globally
+npm run dev
+```
+
+---
+
+## 12. Kontribusi & Feedback
+
+Untuk reporting bugs atau request features, buka issue di repository:
+```
+https://github.com/polaariiss/kosongin-backend/issues
+```
+
+---
+

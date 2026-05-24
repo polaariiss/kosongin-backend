@@ -113,6 +113,14 @@ export const joinChallenge = async (
       throw new ApiError(404, 'Challenge tidak ditemukan');
     }
 
+    // Cek apakah challenge sudah berakhir
+    if (challenge.endDate && new Date(challenge.endDate) < new Date()) {
+      throw new ApiError(
+        400,
+        'Challenge ini sudah berakhir dan tidak dapat diikuti',
+      );
+    }
+
     // Cek apakah sudah join
     const alreadyJoined = await challengeQuery.findUserChallenge(
       userId,
